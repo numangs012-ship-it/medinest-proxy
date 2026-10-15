@@ -26,7 +26,21 @@ exports.handler = async (event) => {
   }
 
   try {
-    const { action, email, password } = JSON.parse(event.body);
+    // Handle both JSON and form-encoded bodies
+    let body;
+    const contentType = event.headers['content-type'] || event.headers['Content-Type'] || '';
+    if (contentType.includes('application/json')) {
+      body = JSON.parse(event.body);
+    } else {
+      // Parse URL-encoded form data
+      const params = new URLSearchParams(event.body);
+      body = {
+        action: params.get('action') || 'signin',
+        email: params.get('email'),
+        password: params.get('password'),
+      };
+    }
+    const { action, email, password } = body;
 
     if (!action || !email || !password) {
       return {
