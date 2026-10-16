@@ -30,7 +30,8 @@ button:hover { background: #1b5e20; }
 .low-stock-badge { color: #d84315; font-weight: bold; }
 #lowStockCount { color: #d84315; font-size: 14px; font-weight: bold; }
 </style>
-</head>
+
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script></head>
 <body>
 <div class="header"><h1>🌿 Medinest</h1><p>Medicine Stores, Orders & Khata</p></div>
 
@@ -97,7 +98,7 @@ button:hover { background: #1b5e20; }
 <div class="card">
 <h3>Medicines <span id="lowStockCount"></span></h3><div id="medList"><p>No medicines yet.</p></div><h4 style="margin-top:15px;">Add Medicine</h4><input type="text" id="medName" placeholder="Medicine Name"><input type="number" id="medPrice" placeholder="Price (Rs)"><input type="number" id="medStock" placeholder="Stock Quantity"><select id="medCat"><option value="Tablet">Tablet</option><option value="Syrup">Syrup</option><option value="Capsule">Capsule</option><option value="Drops">Drops</option><option value="Injection">Injection</option><option value="Ointment">Ointment</option><option value="Other">Other</option></select><select id="medStoreType"><option value="homeo">Homeopathic</option><option value="allo">Allopathic</option></select><input type="text" id="medPhoto" placeholder="Photo URL (optional)"><button id="addMedBtn">Add Medicine</button>
 <h4 style="margin-top:15px;">Bulk Add</h4><textarea id="bulkText" placeholder="Format: name - price - stock (one per line)&#10;Example:&#10;Panadol - 50 - 100&#10;Brufen - 80 - 50" rows="4"></textarea>
-<button id="bulkAddBtn">Add All</button>
+<p><strong>OR Scan Photo:</strong></p><input type="file" id="bulkPhoto" accept="image/*"><button id="scanPhotoBtn">Scan Photo</button><p id="scanStatus"></p><button id="bulkAddBtn">Add All</button>
 </div>
 </div>
 
@@ -443,7 +444,7 @@ renderMeds();
 renderStores();
 document.getElementById('calcDelBtn').onclick = () => { const qty = parseFloat(document.getElementById('delQty').value) || 0; const weight = parseFloat(document.getElementById('delWeight').value) || 0; const dist = parseFloat(document.getElementById('delDist').value) || 0; let fee = (qty * 10) + (weight * 50) + (dist * 20); let note = ''; if (qty > 10) { fee = fee * 0.9; note = ' (10% discount applied)'; } document.getElementById('delResult').innerHTML = 'Delivery Fee: <strong>Rs ' + fee.toFixed(2) + '</strong>' + note; }; let ledger = JSON.parse(localStorage.getItem('medinest_ledger') || '[]'); function renderLedger() { const list = document.getElementById('ledgerList'); if (!list) return; if (ledger.length === 0) { list.innerHTML = '<p>No transactions yet.</p>'; return; } const pending = ledger.filter(t => t.type === 'pending').reduce((s, t) => s + (parseFloat(t.amt) || 0), 0); const received = ledger.filter(t => t.type === 'received').reduce((s, t) => s + (parseFloat(t.amt) || 0), 0); list.innerHTML = ledger.map(t => '<div style="border:1px solid #ddd; padding:10px; margin:5px 0; border-radius:4px;"><strong>' + t.desc + '</strong> - Rs ' + t.amt + ' <span class="store-type ' + (t.type === 'pending' ? 'allo' : 'homeo') + '">' + t.type + '</span> <small>(' + t.date + ')</small></div>').join('') + '<p style="margin-top:10px;"><strong>Total Received: Rs ' + received.toFixed(2) + '</strong> | <strong>Total Pending: Rs ' + pending.toFixed(2) + '</strong></p>'; } document.getElementById('addLedBtn').onclick = () => { const desc = document.getElementById('ledDesc').value.trim(); const amt = document.getElementById('ledAmt').value; const type = document.getElementById('ledType').value; if (!desc || !amt) { alert('Enter description and amount'); return; } ledger.push({desc: desc, amt: parseFloat(amt), type: type, date: new Date().toLocaleString()}); localStorage.setItem('medinest_ledger', JSON.stringify(ledger)); document.getElementById('ledDesc').value = ''; document.getElementById('ledAmt').value = ''; renderLedger(); }; renderLedger(); // Restore session
 const saved = localStorage.getItem('medinest_user');
-if (saved) { user = JSON.parse(saved); showDashboard(); }
+if (saved) { user = JSON.parse(saved); showDashboard(); } document.getElementById('scanPhotoBtn').onclick = async () => { const file = document.getElementById('bulkPhoto').files[0]; if (!file) { alert('Please select a photo first'); return; } document.getElementById('scanStatus').textContent = 'Scanning... please wait'; try { const result = await Tesseract.recognize(file, 'eng'); document.getElementById('bulkText').value = result.data.text; document.getElementById('scanStatus').textContent = 'Scan complete! Review and click Add All.'; } catch(e) { document.getElementById('scanStatus').textContent = 'Scan failed: ' + e.message; } };
 </script>
 <script src="reviews.js"></script>
 </body>
