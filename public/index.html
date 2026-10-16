@@ -43,7 +43,7 @@ button:hover { background: #1b5e20; }
 <input type="password" id="loginPass" placeholder="Password">
 <label><input type="checkbox" id="showLoginPass"> Show</label>
 <button id="loginBtn">Sign In</button>
-<p style="text-align:center; margin-top:10px;"><a href="#" id="showSignup">Create Account</a></p>
+<p style="text-align:center; margin-top:10px;"><a href="#" id="showSignup">Create Account</a></p><p style="text-align:center; margin-top:10px;"><a href="#" id="forgotPass">Forgot Password?</a></p>
 </div>
 </div>
 
@@ -73,10 +73,10 @@ button:hover { background: #1b5e20; }
 <button id="logoutBtn" style="width:auto; padding:8px 20px;">Logout</button>
 </div>
 
-<div class="card"><h3>My Referral</h3><p>Share: <span id="refLink"></span></p><button id="copyRef">Copy Link</button></div><div class="card"><h3>Payment Methods</h3><select id="payMethod"><option>Cash on Delivery (COD)</option><option>Online - JazzCash</option><option>Online - Easypaisa</option><option>Bank Transfer</option></select></div><div class="tabs">
+<div class="card"><h3>My Referral</h3><p>Share: <span id="refLink"></span></p><button id="copyRef">Copy Link</button></div><div class="card"><h3>Payment Methods</h3><select id="payMethod"><option>Cash on Delivery (COD)</option><option>Online - JazzCash</option><option>Online - Easypaisa</option><option>Bank Transfer</option></select></div><div class="card"><h3>Delivery Fee Calculator</h3><p><small>For customers only (not doctor-to-doctor)</small></p><input type="number" id="delQty" placeholder="Quantity"><input type="number" id="delWeight" placeholder="Weight (kg)"><input type="number" id="delDist" placeholder="Distance (km)"><button id="calcDelBtn">Calculate</button><p id="delResult"></p></div><div class="tabs">
 <button class="tab active" data-tab="stores">Stores</button>
 <button class="tab" data-tab="orders">Orders</button>
-<button class="tab" data-tab="tracking">Tracking</button>
+<button class="tab" data-tab="tracking">Tracking</button><button class="tab" data-tab="ledger">Ledger</button>
 </div>
 
 <div id="tab-stores"><div class="card"><input type="text" id="storeSearch" placeholder="Search stores or doctors..."></div>
@@ -117,7 +117,7 @@ button:hover { background: #1b5e20; }
 <p>Track your medicine deliveries online in real-time.</p>
 </div>
 </div>
-<div class="card"><h3>Customer Support</h3><p>📞 Phone/WhatsApp: <a href="https://wa.me/923198086233">+923198086233</a></p><p>📢 WhatsApp Channel: <a href="https://whatsapp.com/channel/0029Vb9MT0kChq6MFsUW142v">medinest🌿☘️</a></p></div>
+<div id="tab-ledger" class="hidden"><div class="card"><h3>Balance / Ledger</h3><div id="ledgerList"><p>No transactions yet.</p></div><h4>Add Transaction</h4><input type="text" id="ledDesc" placeholder="Description"><input type="number" id="ledAmt" placeholder="Amount"><select id="ledType"><option value="pending">Pending</option><option value="received">Received</option></select><button id="addLedBtn">Add</button></div></div><div class="card"><h3>Customer Support</h3><p>📞 Phone/WhatsApp: <a href="https://wa.me/923198086233">+923198086233</a></p><p>📢 WhatsApp Channel: <a href="https://whatsapp.com/channel/0029Vb9MT0kChq6MFsUW142v">medinest🌿☘️</a></p></div>
 </div>
 
 <script>
@@ -125,7 +125,7 @@ const API = 'https://marvelous-genie-304f9f.netlify.app/.netlify/functions/auth'
 let user = null;
 
 document.getElementById('showSignup').onclick = (e) => { e.preventDefault(); document.getElementById('loginDiv').classList.add('hidden'); document.getElementById('signupDiv').classList.remove('hidden'); };
-document.getElementById('showLogin').onclick = (e) => { e.preventDefault(); document.getElementById('signupDiv').classList.add('hidden'); document.getElementById('loginDiv').classList.remove('hidden'); };
+document.getElementById('showLogin').onclick = (e) => { e.preventDefault(); document.getElementById('signupDiv').classList.add('hidden'); document.getElementById('loginDiv').classList.remove('hidden'); }; document.getElementById('forgotPass').onclick = (e) => { e.preventDefault(); const email = prompt('Enter your email address:'); if (email) { alert('Password reset link sent to ' + email + ' (demo)'); } }; // Password reset (demo)
 
 // Show/hide password toggles
 document.getElementById('showLoginPass').onchange = (e) => { document.getElementById('loginPass').type = e.target.checked ? 'text' : 'password'; };
@@ -199,7 +199,7 @@ document.querySelectorAll('.tab').forEach(t => {
     t.classList.add('active');
     document.getElementById('tab-stores').classList.add('hidden');
     document.getElementById('tab-orders').classList.add('hidden');
-    document.getElementById('tab-tracking').classList.add('hidden');
+    document.getElementById('tab-tracking').classList.add('hidden'); document.getElementById('tab-ledger').classList.add('hidden');
     document.getElementById('tab-' + t.dataset.tab).classList.remove('hidden');
   };
 });
@@ -322,7 +322,7 @@ document.getElementById('createStoreBtn').onclick = () => {
 
 renderMeds();
 renderStores();
-// Restore session
+document.getElementById('calcDelBtn').onclick = () => { const qty = parseFloat(document.getElementById('delQty').value) || 0; const weight = parseFloat(document.getElementById('delWeight').value) || 0; const dist = parseFloat(document.getElementById('delDist').value) || 0; let fee = (qty * 10) + (weight * 50) + (dist * 20); let note = ''; if (qty > 10) { fee = fee * 0.9; note = ' (10% discount applied)'; } document.getElementById('delResult').innerHTML = 'Delivery Fee: <strong>Rs ' + fee.toFixed(2) + '</strong>' + note; }; let ledger = JSON.parse(localStorage.getItem('medinest_ledger') || '[]'); function renderLedger() { const list = document.getElementById('ledgerList'); if (!list) return; if (ledger.length === 0) { list.innerHTML = '<p>No transactions yet.</p>'; return; } const pending = ledger.filter(t => t.type === 'pending').reduce((s, t) => s + (parseFloat(t.amt) || 0), 0); const received = ledger.filter(t => t.type === 'received').reduce((s, t) => s + (parseFloat(t.amt) || 0), 0); list.innerHTML = ledger.map(t => '<div style="border:1px solid #ddd; padding:10px; margin:5px 0; border-radius:4px;"><strong>' + t.desc + '</strong> - Rs ' + t.amt + ' <span class="store-type ' + (t.type === 'pending' ? 'allo' : 'homeo') + '">' + t.type + '</span> <small>(' + t.date + ')</small></div>').join('') + '<p style="margin-top:10px;"><strong>Total Received: Rs ' + received.toFixed(2) + '</strong> | <strong>Total Pending: Rs ' + pending.toFixed(2) + '</strong></p>'; } document.getElementById('addLedBtn').onclick = () => { const desc = document.getElementById('ledDesc').value.trim(); const amt = document.getElementById('ledAmt').value; const type = document.getElementById('ledType').value; if (!desc || !amt) { alert('Enter description and amount'); return; } ledger.push({desc: desc, amt: parseFloat(amt), type: type, date: new Date().toLocaleString()}); localStorage.setItem('medinest_ledger', JSON.stringify(ledger)); document.getElementById('ledDesc').value = ''; document.getElementById('ledAmt').value = ''; renderLedger(); }; renderLedger(); // Restore session
 const saved = localStorage.getItem('medinest_user');
 if (saved) { user = JSON.parse(saved); showDashboard(); }
 </script>
