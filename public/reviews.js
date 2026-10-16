@@ -30,11 +30,11 @@
     }
   }
 
-  /* 2. Review system (localStorage 'medinest_reviews') */
+  /* 2. Review system (Firestore 'reviews' collection - LIVE) */
   var reviews = [];
-  try { reviews = JSON.parse(localStorage.getItem('medinest_reviews') || '[]'); } catch (e) { reviews = []; }
+  /* LIVE: reviews stored in Firestore 'reviews' collection (loaded in renderReviews) */
 
-  function renderReviews() {
+  var sortByRating = false; async function renderReviews(refresh) { if (refresh === undefined) refresh = true; if (refresh) { try { if (typeof fsGet === 'function') { reviews = await fsGet('reviews'); if (typeof byCreated === 'function') reviews.sort(byCreated); } } catch (e) { console.error(e); alert('Could not load reviews: ' + e.message); } } if (sortByRating) { reviews.sort(function(a, b) { return (b.stars || 0) - (a.stars || 0); }); }
     var list = document.getElementById('reviewList');
     if (!list) return;
     if (!reviews.length) { list.innerHTML = '<p>No reviews yet.</p>'; return; }
@@ -49,9 +49,9 @@
     var btn = document.getElementById('sortRatingBtn');
     if (!btn || btn.dataset.bound) return;
     btn.dataset.bound = '1';
-    btn.onclick = function() {
-      reviews.sort(function(a, b) { return b.stars - a.stars; });
-      try { localStorage.setItem('medinest_reviews', JSON.stringify(reviews)); } catch (e) {}
+    btn.onclick = async function() {
+      sortByRating = true;
+      /* now persisted in Firestore */
       renderReviews();
     };
   }
@@ -60,14 +60,14 @@
     var btn = document.getElementById('addRevBtn');
     if (!btn || btn.dataset.bound) return;
     btn.dataset.bound = '1';
-    btn.onclick = function() {
+    btn.onclick = async function() {
       var stars = parseInt(document.getElementById('revStars').value, 10) || 5;
       var text = document.getElementById('revText').value.trim();
       if (!text) { alert('Please write a review first'); return; }
       var by = 'guest';
       try { if (typeof user !== 'undefined' && user) by = user.name || user.email || 'guest'; } catch (e) {}
-      reviews.unshift({ stars: stars, text: text, by: by, date: new Date().toLocaleString() });
-      try { localStorage.setItem('medinest_reviews', JSON.stringify(reviews)); } catch (e) {}
+      try { await fsAdd('reviews', { stars: stars, text: text, by: by, date: new Date().toLocaleString(), createdAt: new Date().toISOString() }); } catch (e) { alert('Submit review failed: ' + e.message); return; }
+      /* now persisted in Firestore */
       document.getElementById('revText').value = '';
       renderReviews();
     };
@@ -96,7 +96,7 @@
           var el = document.getElementById('tab-' + id);
           if (el) el.classList.add('hidden');
         });
-        var target = document.getElementById('tab-' + t.dataset.tab);
+        var target = document.getElementById('tab-' + t.dataset.tab); if (t.dataset.tab === 'reviews') { renderReviews(); } else if (t.dataset.tab === 'ledger' && typeof renderLedger === 'function') { renderLedger(); }
         if (target) target.classList.remove('hidden');
       };
     });
