@@ -453,7 +453,12 @@
       var store = activeStore();
       var id = remove.getAttribute("data-delete-medicine");
       store.medicines = store.medicines.filter(function (item) { return item.id !== id; });
-      renderApp(); showToast("Medicine removed");  try {
+      renderApp(); showToast("Medicine removed");
+    }
+  });
+
+  // Session restore + boot init (top level, runs once at page load)
+  try {
     var _savedToken = localStorage.getItem("medinest_token");
     var _savedUser = JSON.parse(localStorage.getItem("medinest_user") || "null");
     if (_savedToken && _savedUser && _savedUser.email) {
@@ -511,8 +516,6 @@
     }
   });
   }
-    }
-  });
 
   document.addEventListener("change", function (event) {
     if (event.target.id === "store-switch") {
