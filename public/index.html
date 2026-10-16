@@ -124,6 +124,90 @@ button:hover { background: #1b5e20; }
 const API = 'https://marvelous-genie-304f9f.netlify.app/.netlify/functions/auth';
 let user = null;
 
+// ---------- Firestore: LIVE multi-user data ----------
+const FS = 'https://firestore.googleapis.com/v1/projects/medinest-36419/databases/(default)/documents';
+
+// ID token from the auth-proxy sign-in (equivalent of Firebase currentUser.getIdToken())
+function getIdToken() {
+  return (user && user.token) ? user.token : null;
+}
+
+function fsEncode(obj) {
+  const fields = {};
+  for (const k of Object.keys(obj)) {
+    const v = obj[k];
+    if (v === null || v === undefined) fields[k] = { nullValue: null };
+    else if (typeof v === 'number') fields[k] = Number.isInteger(v) ? { integerValue: String(v) } : { doubleValue: v };
+    else if (typeof v === 'boolean') fields[k] = { booleanValue: v };
+    else fields[k] = { stringValue: String(v) };
+  }
+  return { fields };
+}
+
+function fsDecode(doc) {
+  const out = { _id: (doc.name || '').split('/').pop() };
+  const fields = doc.fields || {};
+  for (const k of Object.keys(fields)) {
+    const v = fields[k];
+    if (v.stringValue !== undefined) out[k] = v.stringValue;
+    else if (v.integerValue !== undefined) out[k] = parseInt(v.integerValue, 10);
+    else if (v.doubleValue !== undefined) out[k] = v.doubleValue;
+    else if (v.booleanValue !== undefined) out[k] = v.booleanValue;
+    else out[k] = null;
+  }
+  return out;
+}
+
+function byCreated(a, b) {
+  return String(a.createdAt || '').localeCompare(String(b.createdAt || ''));
+}
+
+async function fsGet(collection) {
+  const token = getIdToken();
+  if (!token) return [];
+  const r = await fetch(FS + '/' + collection + '?pageSize=300', { headers: { 'Authorization': 'Bearer ' + token } });
+  if (r.status === 401 || r.status === 403) { alert('Session expired or access denied. Please log in again.'); return []; }
+  if (!r.ok) throw new Error('Firestore read failed (HTTP ' + r.status + ')');
+  const d = await r.json();
+  return (d.documents || []).map(fsDecode);
+}
+
+async function fsAdd(collection, data) {
+  const token = getIdToken();
+  if (!token) throw new Error('Not signed in');
+  const r = await fetch(FS + '/' + collection, {
+    method: 'POST',
+    headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+    body: JSON.stringify(fsEncode(data))
+  });
+  if (!r.ok) throw new Error('Firestore write failed (HTTP ' + r.status + ')');
+  const d = await r.json();
+  return (d.name || '').split('/').pop();
+}
+
+async function fsUpdate(collection, docId, data) {
+  const token = getIdToken();
+  if (!token) throw new Error('Not signed in');
+  const mask = Object.keys(data).map(k => 'updateMask.fieldPaths=' + encodeURIComponent(k)).join('&');
+  const r = await fetch(FS + '/' + collection + '/' + encodeURIComponent(docId) + '?' + mask, {
+    method: 'PATCH',
+    headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+    body: JSON.stringify(fsEncode(data))
+  });
+  if (!r.ok) throw new Error('Firestore update failed (HTTP ' + r.status + ')');
+}
+
+async function fsDelete(collection, docId) {
+  const token = getIdToken();
+  if (!token) throw new Error('Not signed in');
+  const r = await fetch(FS + '/' + collection + '/' + encodeURIComponent(docId), {
+    method: 'DELETE',
+    headers: { 'Authorization': 'Bearer ' + token }
+  });
+  if (!r.ok && r.status !== 404) throw new Error('Firestore delete failed (HTTP ' + r.status + ')');
+}
+// ---------- end Firestore ----------
+
 document.getElementById('showSignup').onclick = (e) => { e.preventDefault(); document.getElementById('loginDiv').classList.add('hidden'); document.getElementById('signupDiv').classList.remove('hidden'); };
 document.getElementById('showLogin').onclick = (e) => { e.preventDefault(); document.getElementById('signupDiv').classList.add('hidden'); document.getElementById('loginDiv').classList.remove('hidden'); }; document.getElementById('forgotPass').onclick = (e) => { e.preventDefault(); const email = prompt('Enter your email address:'); if (email) { alert('Password reset link sent to ' + email + ' (demo)'); } }; // Password reset (demo)
 
@@ -175,7 +259,7 @@ document.getElementById('signupBtn').onclick = async () => {
   }
 };
 
-function showDashboard() {
+async function showDashboard() {
   document.getElementById('loginDiv').classList.add('hidden');
   document.getElementById('signupDiv').classList.add('hidden');
   document.getElementById('dashDiv').classList.remove('hidden');
@@ -183,7 +267,9 @@ function showDashboard() {
   document.getElementById('refLink').textContent = 'https://marvelous-genie-304f9f.netlify.app/?ref=' + (user.uid || 'guest');
   const savedPay = localStorage.getItem('medinest_pay');
   if (savedPay) { document.getElementById('payMethod').value = savedPay; }
-  renderOrders();
+  await renderMeds();
+  await renderStores();
+  await renderOrders();
 }
 
 document.getElementById('logoutBtn').onclick = () => {
@@ -204,9 +290,14 @@ document.querySelectorAll('.tab').forEach(t => {
   };
 });
 
-let medicines = JSON.parse(localStorage.getItem('medinest_meds') || '[]');
+let medicines = [];
 let activeFilter = 'all';
-function renderMeds() {
+async function renderMeds(refresh) {
+  if (refresh === undefined) refresh = true;
+  if (refresh) {
+    try { medicines = await fsGet('medicines'); medicines.sort(byCreated); }
+    catch (e) { console.error(e); alert('Could not load medicines: ' + e.message); }
+  }
   const list = document.getElementById('medList');
   const lowCount = medicines.filter(m => parseInt(m.stock, 10) < 10).length;
   const lowEl = document.getElementById('lowStockCount');
@@ -225,9 +316,22 @@ function renderMeds() {
     return '<div' + (isLow ? ' class="low-stock"' : '') + ' style="border:1px solid #ddd; padding:10px; margin:5px 0; border-radius:4px;">' + (m.photo ? '<img src="' + m.photo + '" style="width:50px;height:50px;object-fit:cover;"> ' : '') + '<strong>' + m.name + '</strong> - Rs ' + m.price + ' (Stock: ' + m.stock + ')' + (isLow ? ' <span class="low-stock-badge">⚠️ Low stock!</span>' : '') + ' [' + m.cat + '] <span class="store-type ' + (m.storeType || 'homeo') + '">' + ((m.storeType === 'allo') ? 'Allopathic' : 'Homeopathic') + '</span>' + ' <button onclick="increaseStock(' + i + ')" style="width:auto; padding:5px 10px; background:#2e7d32;">+ Stock</button>' + ' <button onclick="orderMed(' + i + ')" style="width:auto; padding:5px 10px; background:#1565c0;">Order</button>' + ' <button onclick="delMed(' + i + ')" style="width:auto; padding:5px 10px; background:#d32f2f;">Delete</button></div>';
   }).join('');
 }
-function delMed(i) { medicines.splice(i, 1); localStorage.setItem('medinest_meds', JSON.stringify(medicines)); renderMeds(); }
-function increaseStock(i) { const qty = prompt('Add how much stock?'); if (qty === null || qty === '') return; const n = parseInt(qty, 10); if (isNaN(n)) { alert('Enter a valid number'); return; } medicines[i].stock = (parseInt(medicines[i].stock, 10) || 0) + n; localStorage.setItem('medinest_meds', JSON.stringify(medicines)); renderMeds(); }
-document.getElementById('addMedBtn').onclick = () => {
+async function delMed(i) {
+  try { if (medicines[i]._id) await fsDelete('medicines', medicines[i]._id); }
+  catch (e) { alert('Delete failed: ' + e.message); return; }
+  await renderMeds();
+}
+async function increaseStock(i) {
+  const qty = prompt('Add how much stock?');
+  if (qty === null || qty === '') return;
+  const n = parseInt(qty, 10);
+  if (isNaN(n)) { alert('Enter a valid number'); return; }
+  const newStock = (parseInt(medicines[i].stock, 10) || 0) + n;
+  try { if (medicines[i]._id) await fsUpdate('medicines', medicines[i]._id, { stock: newStock }); }
+  catch (e) { alert('Stock update failed: ' + e.message); return; }
+  await renderMeds();
+}
+document.getElementById('addMedBtn').onclick = async () => {
   const name = document.getElementById('medName').value;
   const price = document.getElementById('medPrice').value;
   const stock = document.getElementById('medStock').value;
@@ -235,64 +339,73 @@ document.getElementById('addMedBtn').onclick = () => {
   const storeType = document.getElementById('medStoreType').value;
   if (!name || !price) { alert('Enter name and price'); return; }
   const photo = document.getElementById('medPhoto').value;
-  medicines.push({name, price, stock: stock || 0, cat, photo, storeType});
-  localStorage.setItem('medinest_meds', JSON.stringify(medicines));
+  try {
+    await fsAdd('medicines', { name: name, price: price, stock: stock === '' ? 0 : parseInt(stock, 10), cat: cat, photo: photo, storeType: storeType, createdAt: new Date().toISOString() });
+  } catch (e) { alert('Add medicine failed: ' + e.message); return; }
   document.getElementById('medName').value = '';
   document.getElementById('medPrice').value = '';
   document.getElementById('medStock').value = '';
   document.getElementById('medPhoto').value = '';
-  renderMeds();
+  await renderMeds();
 };
 
 // Bulk add medicines (format: name - price - stock, one per line)
-document.getElementById('bulkAddBtn').onclick = () => {
+document.getElementById('bulkAddBtn').onclick = async () => {
   const lines = document.getElementById('bulkText').value.split('\n');
   let added = 0;
-  lines.forEach(line => {
+  const now = new Date().toISOString();
+  for (const line of lines) {
     const parts = line.split(' - ');
-    if (parts.length < 2) return;
+    if (parts.length < 2) continue;
     const name = parts[0].trim();
     const price = parts[1].trim();
     const stock = parts.length > 2 ? parts[2].trim() : '';
-    if (!name || !price) return;
-    medicines.push({name: name, price: price, stock: stock === '' ? 0 : stock, cat: 'Other', photo: '', storeType: 'homeo'});
-    added++;
-  });
+    if (!name || !price) continue;
+    try {
+      await fsAdd('medicines', { name: name, price: price, stock: stock === '' ? 0 : parseInt(stock, 10), cat: 'Other', photo: '', storeType: 'homeo', createdAt: now });
+      added++;
+    } catch (e) { alert('Bulk add failed: ' + e.message); break; }
+  }
   if (added > 0) {
-    localStorage.setItem('medinest_meds', JSON.stringify(medicines));
     document.getElementById('bulkText').value = '';
-    renderMeds();
+    await renderMeds();
   }
   alert(added + ' medicine(s) added');
 };
 
-let orders = JSON.parse(localStorage.getItem('medinest_orders') || '[]');
-function orderMed(i) {
+let orders = [];
+async function orderMed(i) {
   const qty = prompt('Enter quantity to order (' + medicines[i].name + '):');
   if (qty === null || qty === '') return;
   const n = parseInt(qty, 10);
   if (isNaN(n) || n <= 0) { alert('Enter a valid quantity'); return; }
   const otype = (user && user.type === 'customer') ? 'customer' : 'doctor';
-  orders.push({med: medicines[i].name, qty: n, price: medicines[i].price, type: otype, by: user ? (user.name || user.email) : 'guest', date: new Date().toLocaleString()});
-  localStorage.setItem('medinest_orders', JSON.stringify(orders));
-  renderOrders();
+  try {
+    await fsAdd('orders', { med: medicines[i].name, qty: n, price: medicines[i].price, type: otype, by: user ? (user.name || user.email) : 'guest', date: new Date().toLocaleString(), createdAt: new Date().toISOString() });
+  } catch (e) { alert('Order failed: ' + e.message); return; }
+  await renderOrders();
   alert('Order placed: ' + n + ' x ' + medicines[i].name);
 }
-function renderOrders() {
+async function renderOrders(refresh) {
+  if (refresh === undefined) refresh = true;
+  if (refresh) {
+    try { orders = await fsGet('orders'); orders.sort(byCreated); }
+    catch (e) { console.error(e); alert('Could not load orders: ' + e.message); }
+  }
   const doc = orders.filter(o => o.type === 'doctor');
   const cust = orders.filter(o => o.type === 'customer');
   const item = o => '<div style="border:1px solid #ddd; padding:8px; margin:5px 0; border-radius:4px;"><strong>' + o.qty + ' x ' + o.med + '</strong> - Rs ' + (o.price * o.qty) + ' <small>(' + o.by + ', ' + o.date + ')</small></div>';
   document.getElementById('docOrders').innerHTML = doc.length ? doc.map(item).join('') : '<p>No doctor orders.</p>';
   document.getElementById('custOrders').innerHTML = cust.length ? cust.map(item).join('') : '<p>No customer orders.</p>';
 }
-document.getElementById('storeSearch').addEventListener('input', renderMeds);
+document.getElementById('storeSearch').addEventListener('input', () => renderMeds(false));
 document.getElementById('copyRef').onclick = () => { const link = document.getElementById('refLink').textContent; if (navigator.clipboard) { navigator.clipboard.writeText(link); } alert('Referral link copied!'); };
 document.getElementById('payMethod').onchange = (e) => { localStorage.setItem('medinest_pay', e.target.value); };
 
 // Store type filter pills
-document.getElementById('filterHomeo').onclick = () => { activeFilter = 'homeo'; renderMeds(); updateFilterUI(); };
-document.getElementById('filterAllo').onclick = () => { activeFilter = 'allo'; renderMeds(); updateFilterUI(); };
-document.getElementById('filterAll').onclick = () => { activeFilter = 'all'; renderMeds(); updateFilterUI(); };
+document.getElementById('filterHomeo').onclick = () => { activeFilter = 'homeo'; renderMeds(false); updateFilterUI(); };
+document.getElementById('filterAllo').onclick = () => { activeFilter = 'allo'; renderMeds(false); updateFilterUI(); };
+document.getElementById('filterAll').onclick = () => { activeFilter = 'all'; renderMeds(false); updateFilterUI(); };
 function updateFilterUI() {
   document.getElementById('filterHomeo').style.opacity = activeFilter === 'homeo' ? '1' : '0.5';
   document.getElementById('filterAllo').style.opacity = activeFilter === 'allo' ? '1' : '0.5';
@@ -300,24 +413,30 @@ function updateFilterUI() {
 }
 updateFilterUI();
 
-// Store creation
-let stores = JSON.parse(localStorage.getItem('medinest_stores') || '[]');
-function renderStores() {
+// Store creation (Firestore 'stores' collection)
+let stores = [];
+async function renderStores(refresh) {
+  if (refresh === undefined) refresh = true;
+  if (refresh) {
+    try { stores = await fsGet('stores'); stores.sort(byCreated); }
+    catch (e) { console.error(e); alert('Could not load stores: ' + e.message); }
+  }
   const list = document.getElementById('storeList');
   if (!list) return;
   if (stores.length === 0) { list.innerHTML = '<p>No stores yet.</p>'; return; }
   list.innerHTML = stores.map(s => '<div style="border:1px solid #ddd; padding:10px; margin:5px 0; border-radius:4px;"><strong>' + s.name + '</strong><br>Doctor: ' + s.doctor + ' <span class="store-type ' + s.type + '">' + (s.type === 'allo' ? 'Allopathic' : 'Homeopathic') + '</span></div>').join('');
 }
-document.getElementById('createStoreBtn').onclick = () => {
+document.getElementById('createStoreBtn').onclick = async () => {
   const name = document.getElementById('storeName').value.trim();
   const doctor = document.getElementById('doctorName').value.trim();
   const type = document.getElementById('storeTypeSel').value;
   if (!name || !doctor) { alert('Store name and doctor name are mandatory'); return; }
-  stores.push({name: name, doctor: doctor, type: type});
-  localStorage.setItem('medinest_stores', JSON.stringify(stores));
+  try {
+    await fsAdd('stores', { name: name, doctor: doctor, type: type, createdAt: new Date().toISOString() });
+  } catch (e) { alert('Create store failed: ' + e.message); return; }
   document.getElementById('storeName').value = '';
   document.getElementById('doctorName').value = '';
-  renderStores();
+  await renderStores();
 };
 
 renderMeds();
