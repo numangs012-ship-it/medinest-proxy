@@ -17,20 +17,7 @@ button:hover { background: #1b5e20; }
 .tabs { display: flex; gap: 10px; margin: 15px 0; }
 .tab { flex: 1; padding: 10px; background: #e0e0e0; border: none; cursor: pointer; text-align: center; }
 .tab.active { background: #2e7d32; color: white; }
-.store-type { display: inline-block; padding: 5px 15px; border-radius: 20px; font-size: 14px; margin: 5px; }
-.homeo { background: #e8f5e9; color: #2e7d32; border: 1px solid #2e7d32; }
-.allo { background: #e3f2fd; color: #1565c0; border: 1px solid #1565c0; }
-.tracking { display: flex; justify-content: space-between; margin: 15px 0; }
-.step { flex: 1; text-align: center; padding: 10px; font-size: 12px; }
-.step.done { color: #2e7d32; font-weight: bold; }
-.error { color: red; padding: 10px; background: #ffebee; border-radius: 4px; margin: 10px 0; }
-.success { color: green; padding: 10px; background: #e8f5e9; border-radius: 4px; margin: 10px 0; }
-</style>
-</head>
-<body>
-<div class="header"><h1>🌿 Medinest</h1><p>Medicine Stores, Orders & Khata</p></div>
-
-<!-- LOGIN -->
+.store-type { display: inline-block; padding: 5px 15px; border-radius: 20px; font-size: 14px; margin: <!-- LOGIN -->
 <div id="loginDiv" class="container">
 <div class="card">
 <h2>Login</h2>
@@ -39,54 +26,12 @@ button:hover { background: #1b5e20; }
 <input type="password" id="loginPass" placeholder="Password">
 <button id="loginBtn">Sign In</button>
 <p style="text-align:center; margin-top:10px;"><a href="#" id="showSignup">Create Account</a></p>
-</div>
-</div>
-
-<!-- SIGNUP -->
-<div id="signupDiv" class="container hidden">
-<div class="card">
-<h2>Create Account</h2>
-<div id="signupErr"></div>
-<input type="text" id="suName" placeholder="Full Name">
-<input type="email" id="suEmail" placeholder="Email">
-<input type="password" id="suPass" placeholder="Password">
-<select id="suType">
-<option value="customer">Customer</option>
-<option value="homeo">Homeopathic Doctor</option>
-<option value="allo">Allopathic Doctor</option>
-</select>
-<button id="signupBtn">Create Account</button>
-<p style="text-align:center; margin-top:10px;"><a href="#" id="showLogin">Back to Login</a></p>
-</div>
-</div>
-
-<!-- DASHBOARD -->
+</div><!-- DASHBOARD -->
 <div id="dashDiv" class="container hidden">
 <div class="card">
 <h2 id="welcomeMsg">Welcome</h2>
 <button id="logoutBtn" style="width:auto; padding:8px 20px;">Logout</button>
 </div>
-
-<div class="card"><h3>My Referral</h3><p>Share: <span id="refLink"></span></p><button id="copyRef">Copy Link</button></div><div class="card"><h3>Payment Methods</h3><select id="payMethod"><option>Cash on Delivery (COD)</option><option>Online - JazzCash</option><option>Online - Easypaisa</option><option>Bank Transfer</option></select></div><div class="tabs">
-<button class="tab active" data-tab="stores">Stores</button>
-<button class="tab" data-tab="orders">Orders</button>
-<button class="tab" data-tab="tracking">Tracking</button>
-</div>
-
-<div id="tab-stores"><div class="card"><input type="text" id="storeSearch" placeholder="Search stores or doctors..."></div>
-<div class="card">
-<h3>Store Types</h3>
-<span class="store-type homeo">Homeopathic</span>
-<span class="store-type allo">Allopathic</span>
-<p style="margin-top:15px;">Select your store type to get started.</p>
-</div>
-<div class="card">
-<h3>Medicines</h3><div id="medList"><p>No medicines yet.</p></div><h4 style="margin-top:15px;">Add Medicine</h4><input type="text" id="medName" placeholder="Medicine Name"><input type="number" id="medPrice" placeholder="Price (Rs)"><input type="number" id="medStock" placeholder="Stock Quantity"><select id="medCat"><option value="Tablet">Tablet</option><option value="Syrup">Syrup</option><option value="Capsule">Capsule</option><option value="Drops">Drops</option><option value="Injection">Injection</option><option value="Ointment">Ointment</option><option value="Other">Other</option></select><select id="medStoreType"><option value="homeo">Homeopathic</option><option value="allo">Allopathic</option></select><input type="text" id="medPhoto" placeholder="Photo URL (optional)"><button id="addMedBtn">Add Medicine</button>
-
-
-</div>
-</div>
-
 <div id="tab-orders" class="hidden">
 <div class="card"><h3>My Orders</h3><h4>Doctor Orders</h4><div id="docOrders"><p>No doctor orders.</p></div><h4>Customer Orders</h4><div id="custOrders"><p>No customer orders.</p></div></div>
 </div>
@@ -112,28 +57,6 @@ let user = null;
 
 document.getElementById('showSignup').onclick = (e) => { e.preventDefault(); document.getElementById('loginDiv').classList.add('hidden'); document.getElementById('signupDiv').classList.remove('hidden'); };
 document.getElementById('showLogin').onclick = (e) => { e.preventDefault(); document.getElementById('signupDiv').classList.add('hidden'); document.getElementById('loginDiv').classList.remove('hidden'); };
-
-document.getElementById('loginBtn').onclick = async () => {
-  const email = document.getElementById('loginEmail').value;
-  const pass = document.getElementById('loginPass').value;
-  const err = document.getElementById('loginErr');
-  err.innerHTML = '';
-  if (!email || !pass) { err.innerHTML = '<div class="error">Enter email and password</div>'; return; }
-  try {
-    const r = await fetch(API, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({action: 'signin', email, password: pass}) });
-    const d = await r.json();
-    if (d.idToken) {
-      user = { email, uid: d.localId, token: d.idToken };
-      localStorage.setItem('medinest_user', JSON.stringify(user));
-      showDashboard();
-    } else {
-      err.innerHTML = '<div class="error">' + (d.error || 'Login failed') + '</div>';
-    }
-  } catch (e) {
-    err.innerHTML = '<div class="error">Error: ' + e.message + '</div>';
-  }
-};
-
 document.getElementById('signupBtn').onclick = async () => {
   const name = document.getElementById('suName').value;
   const email = document.getElementById('suEmail').value;
@@ -160,7 +83,27 @@ document.getElementById('signupBtn').onclick = async () => {
 function showDashboard() {
   document.getElementById('loginDiv').classList.add('hidden');
   document.getElementById('signupDiv').classList.add('hidden');
-  document.getElementById('dashDiv').classList.remove('hidden');
+  document.getElementById('dashDiv').classList.remove('hidden');let medicines = JSON.parse(localStorage.g// Store type filter pills
+let activeFilter = 'all';
+document.getElementById('filterHomeo').onclick = () => { activeFilter = 'homeo'; renderMeds(); updateFilterUI(); };
+document.getElementById('filterAllo').onclick = () => { activeFilter = 'allo'; renderMeds(); updateFilterUI(); };
+document.getElementById('filterAll').onclick = () => { activeFilter = 'all'; renderMeds(); updateFilterUI(); };
+function updateFilterUI() {
+  document.getElementById('filterHomeo').style.opacity = activeFilter === 'homeo' ? '1' : '0.5';
+  document.getElementById('filterAllo').style.opacity = activeFilter === 'allo' ? '1' : '0.5';
+  document.getElementById('filterAll').style.opacity = activeFilter === 'all' ? '1' : '0.5';
+}
+updateFilterUI();
+
+renderMeds(); // Restore session
+const saved = localStorage.getItem('medinest_user');
+if (saved) { user = JSON.parse(saved); showDashboard(); }
+</script><script src="reviews.js"></script>
+</body>
+</html>
+etItem('medinest_meds') || '[]'); function renderMeds() { const list = document.getElementById('medList'); if (medicines.length === 0) { list.innerHTML = '<p>No medicines yet.</p>'; return; } const q = (document.getElementById('storeSearch').value || '').toLowerCase(); const fidx = medicines.map((m, i) => i).filter(i => { if (activeFilter !== 'all' && (medicines[i].storeType || 'homeo') !== activeFilter) return false; if (!q) return true; const hay = ((medicines[i].name || list.innerHTML = fidx.map(i => { const m = medicines[i]; return '<div style="border:1px solid #ddd; padding:10px; margin:5px 0; border-radius:4px;">' + (m.photo ? '<img src="' + m.photo + '" style="width:50px;height:50px;object-fit:cover;"> ' : '') + '<strong>' + m.name + '</strong> - Rs ' + m.price + ' (Stock: ' + m.stock + ') [' + m.cat + '] <span class="store-type ' + (m.storeType || 'homeo') + '">' + ((m.storeType === 'allo') ? 'Allopathic' : 'Homeopathic') + '</span>' + ' <button onclick="increaseStock(' + i + ')" style="width:auto; padding:5px 10px; background:#2e7d32;">+ Stock</button>' + ' <button onclick="orderMed(' + i + ')" style="width:auto; padding:5px 10px; background:#1565c0;">Order</button>' + ' <button onclick="delMed(' + i + ')" style="width:auto; padding:5px 10px; background:#d32f2f;">Delete</button></div>'; }).join(''); } function delMed(i) { medicines.splice(i, 1); localStorage.setItem('medinest_meds', JSON.stringify(medicines)); renderMeds(); } function increaseStock(i) { const qty = prompt('Add how much stock?'); if (qty === null || qty === '') return; const n = parseInt(qty, 10); if (isNaN(n)) { alert('Enter a valid number'); return; } medicines[i].stock = (document.getElementById('addMedBtn').onclick = () => { const name = document.getElementById('medName').value; const price = document.getElementById('medPrice').value; const stock = document.getElementById('medStock').value; const cat = document.getElementById('medCat').value; const storeType = document.getElementById('medStoreType').value; if (!name || !price) { alert('Enter name and price'); return; } const photo = document.getElementById('medPhoto').value; medicines.push({name, price, stock: stock || 0, cat, photo, storeType}); localStorage.setItem('medinest_meds', JSON.stringify(medicines)); document.getElementById('medName').value = ''; document.getElementById('medPrice')let orders = JSON.parse(localStorage.getItem('medinest_orders') || '[]'); function orderMed(i) { const qty = prompt('Enter quantity to order (' + medicines[i].name + '):'); if (qty === null || qty === '') return; const n = parseInt(qty, 10); if (isNaN(n) || n <= 0) { alert('Enter a valid quantity'); return; } const otype = (user && user.type === 'customer') ? 'customer' : 'doctor'; orders.push({med: medicines[i].name, qty: n, price: medicines[i].price, type: otype, by: user ? (user.name || user.email) : 'guest', date: new Date().toLocaleString()}); localStorage.setItem('medinest_orders', JSON.stringify(orders)); renderOrders(); alert('Order placed: ' + n + ' x ' + medicines[i].name); } function renderOrders() { const doc = orders.filter(o => o.type === 'doctor'); const cust = orders.filter(o => o.type === 'customer'); const item = o => '<div style="border:1px solid #ddd; padding:8px; margin:5px 0; border-radius:4px;"><strong>' + o.qty + ' x ' + o.med + '</strong> - Rs ' + (o.price * o.qty) + ' <small>(' + o.by + ', ' + o.date + ')</small></div>'; document.getElementById('docOrders').innerHTML = doc.length ? doc.map(item).join('') : '<p>No doctor orders.</p>'; document.getElementById('custOrders').innerHTML = cust.length ? cust.map(item).join('') : '<p>No customer orders.</p>'; } document.getElementById('storeSearch').addEventListener('input', renderMeds); document.getElementById('copyRef').onclick = () => { const link = document.getElementById('refLink').textContent; if (navigator.clipboard) { navigator.clipboard.writeText(link); } alert('Referral link copied!'); }; document.getElementById('payMethod').onchange = (e) => { localStorage.setItem('medinest_pay', e.target.value); };
+
+.value = ''; document.getElementById('medStock').value = ''; document.getElementById('medPhoto').value = ''; renderMeds(); }; parseInt(medicines[i].stock, 10) || 0) + n; localStorage.setItem('medinest_meds', JSON.stringify(medicines)); renderMeds(); } '') + ' ' + (medicines[i].cat || '') + ' ' + (medicines[i].storeType || '')).toLowerCase(); return hay.indexOf(q) !== -1; }); 
   document.getElementById('welcomeMsg').textContent = 'Welcome, ' + (user.name || user.email); document.getElementById('refLink').textContent = 'https://marvelous-genie-304f9f.netlify.app/?ref=' + (user.uid || 'guest'); const savedPay = localStorage.getItem('medinest_pay'); if (savedPay) { document.getElementById('payMethod').value = savedPay; } renderOrders();
 }
 
@@ -182,9 +125,84 @@ document.querySelectorAll('.tab').forEach(t => {
   };
 });
 
-let medicines = JSON.parse(localStorage.getItem('medinest_meds') || '[]'); function renderMeds() { const list = document.getElementById('medList'); if (medicines.length === 0) { list.innerHTML = '<p>No medicines yet.</p>'; return; } const q = (document.getElementById('storeSearch').value || '').toLowerCase(); const fidx = medicines.map((m, i) => i).filter(i => { if (!q) return true; const hay = ((medicines[i].name || '') + ' ' + (medicines[i].cat || '') + ' ' + (medicines[i].storeType || '')).toLowerCase(); return hay.indexOf(q) !== -1; }); list.innerHTML = fidx.map(i => { const m = medicines[i]; return '<div style="border:1px solid #ddd; padding:10px; margin:5px 0; border-radius:4px;">' + (m.photo ? '<img src="' + m.photo + '" style="width:50px;height:50px;object-fit:cover;"> ' : '') + '<strong>' + m.name + '</strong> - Rs ' + m.price + ' (Stock: ' + m.stock + ') [' + m.cat + '] <span class="store-type ' + (m.storeType || 'homeo') + '">' + ((m.storeType === 'allo') ? 'Allopathic' : 'Homeopathic') + '</span>' + ' <button onclick="increaseStock(' + i + ')" style="width:auto; padding:5px 10px; background:#2e7d32;">+ Stock</button>' + ' <button onclick="orderMed(' + i + ')" style="width:auto; padding:5px 10px; background:#1565c0;">Order</button>' + ' <button onclick="delMed(' + i + ')" style="width:auto; padding:5px 10px; background:#d32f2f;">Delete</button></div>'; }).join(''); } function delMed(i) { medicines.splice(i, 1); localStorage.setItem('medinest_meds', JSON.stringify(medicines)); renderMeds(); } function increaseStock(i) { const qty = prompt('Add how much stock?'); if (qty === null || qty === '') return; const n = parseInt(qty, 10); if (isNaN(n)) { alert('Enter a valid number'); return; } medicines[i].stock = (parseInt(medicines[i].stock, 10) || 0) + n; localStorage.setItem('medinest_meds', JSON.stringify(medicines)); renderMeds(); } document.getElementById('addMedBtn').onclick = () => { const name = document.getElementById('medName').value; const price = document.getElementById('medPrice').value; const stock = document.getElementById('medStock').value; const cat = document.getElementById('medCat').value; const storeType = document.getElementById('medStoreType').value; if (!name || !price) { alert('Enter name and price'); return; } const photo = document.getElementById('medPhoto').value; medicines.push({name, price, stock: stock || 0, cat, photo, storeType}); localStorage.setItem('medinest_meds', JSON.stringify(medicines)); document.getElementById('medName').value = ''; document.getElementById('medPrice').value = ''; document.getElementById('medStock').value = ''; document.getElementById('medPhoto').value = ''; renderMeds(); }; let orders = JSON.parse(localStorage.getItem('medinest_orders') || '[]'); function orderMed(i) { const qty = prompt('Enter quantity to order (' + medicines[i].name + '):'); if (qty === null || qty === '') return; const n = parseInt(qty, 10); if (isNaN(n) || n <= 0) { alert('Enter a valid quantity'); return; } const otype = (user && user.type === 'customer') ? 'customer' : 'doctor'; orders.push({med: medicines[i].name, qty: n, price: medicines[i].price, type: otype, by: user ? (user.name || user.email) : 'guest', date: new Date().toLocaleString()}); localStorage.setItem('medinest_orders', JSON.stringify(orders)); renderOrders(); alert('Order placed: ' + n + ' x ' + medicines[i].name); } function renderOrders() { const doc = orders.filter(o => o.type === 'doctor'); const cust = orders.filter(o => o.type === 'customer'); const item = o => '<div style="border:1px solid #ddd; padding:8px; margin:5px 0; border-radius:4px;"><strong>' + o.qty + ' x ' + o.med + '</strong> - Rs ' + (o.price * o.qty) + ' <small>(' + o.by + ', ' + o.date + ')</small></div>'; document.getElementById('docOrders').innerHTML = doc.length ? doc.map(item).join('') : '<p>No doctor orders.</p>'; document.getElementById('custOrders').innerHTML = cust.length ? cust.map(item).join('') : '<p>No customer orders.</p>'; } document.getElementById('storeSearch').addEventListener('input', renderMeds); document.getElementById('copyRef').onclick = () => { const link = document.getElementById('refLink').textContent; if (navigator.clipboard) { navigator.clipboard.writeText(link); } alert('Referral link copied!'); }; document.getElementById('payMethod').onchange = (e) => { localStorage.setItem('medinest_pay', e.target.value); }; renderMeds(); // Restore session
-const saved = localStorage.getItem('medinest_user');
-if (saved) { user = JSON.parse(saved); showDashboard(); }
-</script><script src="reviews.js"></script>
-</body>
-</html>
+
+document.getElementById('loginBtn').onclick = async () => {
+  const email = document.getElementById('loginEmail').value;
+  const pass = document.getElementById('loginPass').value;
+  const err = document.getElementById('loginErr');
+  err.innerHTML = '';
+  if (!email || !pass) { err.innerHTML = '<div class="error">Enter email and password</div>'; return; }
+  try {
+    const r = await fetch(API, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({action: 'signin', email, password: pass}) });
+    const d = await r.json();
+    if (d.idToken) {
+      user = { email, uid: d.localId, token: d.idToken };
+      localStorage.setItem('medinest_user', JSON.stringify(user));
+      showDashboard();
+    } else {
+      err.innerHTML = '<div class="error">' + (d.error || 'Login failed') + '</div>';
+    }
+  } catch (e) {
+    err.innerHTML = '<div class="error">Error: ' + e.message + '</div>';
+  }
+};
+
+
+<div class="card"><h3>My Referral</h3><p>Share: <span id="refLink"></span></p><button id="copyRef">Copy Link</button></div><div class="card"><h3>Payment Methods</h3><select id="payMethod"><option>Cash on Delivery (COD)</option><option>Online - JazzCash</option><option>Online - Easypaisa</option><option>Bank Transfer</option></select></div><div class="tabs">
+<button class="tab active" data-tab="stores">Stores</button>
+<button class="tab" data-tab="orders">Orders</button>
+<button class="tab" data-tab="tracking">Tracking</button>
+</div>
+
+<div id="tab-stores"><div class="card"><input type="text" id="storeSearch" placeholder="Search stores or doctors..."></div>
+<div class="card">
+<h3>Store Types</h3>
+<button class="store-type homeo" id="filterHomeo" style="cursor:pointer;">Homeopathic</button>
+<button class="store-type allo" id="filterAllo" style="cursor:pointer;">Allopathic</button>
+<button class="store-type" id="filterAll" style="cursor:pointer; background:#f5f5f5;">All</button>
+<p style="margin-top:15px;">Select your store type to get started.</p>
+</div>
+<div class="card">
+<h3>Medicines</h3><div id="medList"><p>No medicines yet.</p></div><h4 style="margin-top:15px;">Add Medicine</h4><input type="text" id="medName" placeholder="Medicine Name"><input type="number" id="medPrice" placeholder="Price (Rs)"><input type="number" id="medStock" placeholder="Stock Quantity"><select id="medCat"><option value="Tablet">Tablet</option><option value="Syrup">Syrup</option><option value="Capsule">Capsule</option><option value="Drops">Drops</option><option value="Injection">Injection</option><option value="Ointment">Ointment</option><option value="Other">Other</option></select><select id="medStoreType"><option value="homeo">Homeopathic</option><option value="allo">Allopathic</option></select><input type="text" id="medPhoto" placeholder="Photo URL (optional)"><button id="addMedBtn">Add Medicine</button>
+
+
+</div>
+</div>
+
+
+</div>
+
+
+<!-- SIGNUP -->
+<div id="signupDiv" class="container hidden">
+<div class="card">
+<h2>Create Account</h2>
+<div id="signupErr"></div>
+<input type="text" id="suName" placeholder="Full Name">
+<input type="email" id="suEmail" placeholder="Email">
+<input type="password" id="suPass" placeholder="Password">
+<select id="suType">
+<option value="customer">Customer</option>
+<option value="homeo">Homeopathic Doctor</option>
+<option value="allo">Allopathic Doctor</option>
+</select>
+<button id="signupBtn">Create Account</button>
+<p style="text-align:center; margin-top:10px;"><a href="#" id="showLogin">Back to Login</a></p>
+</div>
+</div>
+
+
+5px; }
+.homeo { background: #e8f5e9; color: #2e7d32; border: 1px solid #2e7d32; }
+.allo { background: #e3f2fd; color: #1565c0; border: 1px solid #1565c0; }
+.tracking { display: flex; justify-content: space-between; margin: 15px 0; }
+.step { flex: 1; text-align: center; padding: 10px; font-size: 12px; }
+.step.done { color: #2e7d32; font-weight: bold; }
+.error { color: red; padding: 10px; background: #ffebee; border-radius: 4px; margin: 10px 0; }
+.success { color: green; padding: 10px; background: #e8f5e9; border-radius: 4px; margin: 10px 0; }
+</style>
+</head>
+<body>
+<div class="header"><h1>🌿 Medinest</h1><p>Medicine Stores, Orders & Khata</p></div>
+
+
