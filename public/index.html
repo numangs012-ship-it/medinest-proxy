@@ -81,9 +81,9 @@ button:hover { background: #1b5e20; }
 <p style="margin-top:15px;">Select your store type to get started.</p>
 </div>
 <div class="card">
-<h3>My Stores</h3>
-<p>No stores yet. Create your first store!</p>
-<button onclick="alert('Store creation coming soon')">+ Create Store</button>
+<h3>Medicines</h3><div id="medList"><p>No medicines yet.</p></div><h4 style="margin-top:15px;">Add Medicine</h4><input type="text" id="medName" placeholder="Medicine Name"><input type="number" id="medPrice" placeholder="Price (Rs)"><input type="number" id="medStock" placeholder="Stock Quantity"><select id="medCat"><option value="Tablet">Tablet</option><option value="Syrup">Syrup</option><option value="Capsule">Capsule</option><option value="Drops">Drops</option><option value="Injection">Injection</option><option value="Ointment">Ointment</option><option value="Other">Other</option></select><button id="addMedBtn">Add Medicine</button>
+
+
 </div>
 </div>
 
@@ -182,7 +182,7 @@ document.querySelectorAll('.tab').forEach(t => {
   };
 });
 
-// Restore session
+let medicines = JSON.parse(localStorage.getItem('medinest_meds') || '[]'); function renderMeds() { const list = document.getElementById('medList'); if (medicines.length === 0) { list.innerHTML = '<p>No medicines yet.</p>'; return; } list.innerHTML = medicines.map((m, i) => '<div style="border:1px solid #ddd; padding:10px; margin:5px 0; border-radius:4px;">' + '<strong>' + m.name + '</strong> - Rs ' + m.price + ' (Stock: ' + m.stock + ') [' + m.cat + ']' + ' <button onclick="delMed(' + i + ')" style="width:auto; padding:5px 10px; background:#d32f2f;">Delete</button></div>').join(''); } function delMed(i) { medicines.splice(i, 1); localStorage.setItem('medinest_meds', JSON.stringify(medicines)); renderMeds(); } document.getElementById('addMedBtn').onclick = () => { const name = document.getElementById('medName').value; const price = document.getElementById('medPrice').value; const stock = document.getElementById('medStock').value; const cat = document.getElementById('medCat').value; if (!name || !price) { alert('Enter name and price'); return; } medicines.push({name, price, stock: stock || 0, cat}); localStorage.setItem('medinest_meds', JSON.stringify(medicines)); document.getElementById('medName').value = ''; document.getElementById('medPrice').value = ''; document.getElementById('medStock').value = ''; renderMeds(); }; renderMeds(); // Restore session
 const saved = localStorage.getItem('medinest_user');
 if (saved) { user = JSON.parse(saved); showDashboard(); }
 </script>
