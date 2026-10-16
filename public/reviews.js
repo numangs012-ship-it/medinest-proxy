@@ -23,7 +23,7 @@
       var wrap = document.createElement('div');
       wrap.id = 'tab-reviews';
       wrap.className = 'hidden';
-      wrap.innerHTML = '<div class="card"><h3>Ratings & Reviews</h3><div id="reviewList"><p>No reviews yet.</p></div><h4>Add Review</h4><select id="revStars"><option value="5">★★★★★ 5</option><option value="4">★★★★ 4</option><option value="3">★★★ 3</option><option value="2">★★ 2</option><option value="1">★ 1</option></select><input type="text" id="revText" placeholder="Write a review..."><button id="addRevBtn">Submit Review</button></div>';
+      wrap.innerHTML = '<div class="card"><h3>Ratings & Reviews</h3><button id="sortRatingBtn">Sort by Rating (Top First)</button><div id="reviewList"><p>No reviews yet.</p></div><h4>Add Review</h4><select id="revStars"><option value="5">★★★★★ 5</option><option value="4">★★★★ 4</option><option value="3">★★★ 3</option><option value="2">★★ 2</option><option value="1">★ 1</option></select><input type="text" id="revText" placeholder="Write a review..."><button id="addRevBtn">Submit Review</button></div>';
       if (tracking && tracking.parentNode) {
         tracking.parentNode.insertBefore(wrap, tracking.nextSibling);
       }
@@ -42,6 +42,18 @@
       var stars = '★'.repeat(r.stars) + '☆'.repeat(5 - r.stars);
       return '<div style="border:1px solid #ddd; padding:10px; margin:5px 0; border-radius:4px;"><strong>' + stars + '</strong> <small>' + escHtml(r.by || 'guest') + '</small><p>' + escHtml(r.text) + '</p></div>';
     }).join('');
+  }
+
+  /* 2b. Sort reviews by rating (top rated first) */
+  function bindSortRating() {
+    var btn = document.getElementById('sortRatingBtn');
+    if (!btn || btn.dataset.bound) return;
+    btn.dataset.bound = '1';
+    btn.onclick = function() {
+      reviews.sort(function(a, b) { return b.stars - a.stars; });
+      try { localStorage.setItem('medinest_reviews', JSON.stringify(reviews)); } catch (e) {}
+      renderReviews();
+    };
   }
 
   function bindReviewForm() {
@@ -74,13 +86,13 @@
     dash.insertBefore(div, dash.firstChild);
   }
 
-  /* 4. Tab switching (include Reviews tab) */
+  /* 4. Tab switching (include Reviews + Ledger tabs) */
   function bindTabs() {
     document.querySelectorAll('.tab').forEach(function(t) {
       t.onclick = function() {
         document.querySelectorAll('.tab').forEach(function(x) { x.classList.remove('active'); });
         t.classList.add('active');
-        ['stores', 'orders', 'tracking', 'reviews'].forEach(function(id) {
+        ['stores', 'orders', 'tracking', 'reviews', 'ledger'].forEach(function(id) {
           var el = document.getElementById('tab-' + id);
           if (el) el.classList.add('hidden');
         });
@@ -94,6 +106,7 @@
   injectReviewsUI();
   bindTabs();
   bindReviewForm();
+  bindSortRating();
   renderReviews();
 
   if (typeof window.showDashboard === 'function') {
@@ -103,6 +116,7 @@
       injectReviewsUI();
       bindTabs();
       bindReviewForm();
+      bindSortRating();
       renderReviews();
       showChannelPrompt();
     };
