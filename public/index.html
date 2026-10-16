@@ -294,7 +294,7 @@ document.querySelectorAll('.tab').forEach(t => {
 });
 
 let medicines = [];
-let activeFilter = 'all';
+let activeFilter = 'all'; function isMedOwner(m) { return !!(user && user.uid && m && m.ownerUid && String(m.ownerUid) === String(user.uid)); } function isUnownedMed(m) { return !(m && m.ownerUid); } function canManageMed(m) { return isMedOwner(m) || isUnownedMed(m); }
 // Store-based filtering: viewingStore holds the selected store's id (null = show all)
 function updateStoreFilterBar() {
   const bar = document.getElementById('storeFilterBar');
@@ -329,15 +329,15 @@ async function renderMeds(refresh) {
   list.innerHTML = fidx.map(i => {
     const m = medicines[i];
     const isLow = parseInt(m.stock, 10) < 10;
-    return '<div' + (isLow ? ' class="low-stock"' : '') + ' style="border:1px solid #ddd; padding:10px; margin:5px 0; border-radius:4px;">' + (m.photo ? '<img src="' + m.photo + '" style="width:50px;height:50px;object-fit:cover;"> ' : '') + '<strong>' + m.name + '</strong> - Rs ' + m.price + ' (Stock: ' + m.stock + ')' + (isLow ? ' <span class="low-stock-badge">⚠️ Low stock!</span>' : '') + ' [' + m.cat + '] <span class="store-type ' + (m.storeType || 'homeo') + '">' + ((m.storeType === 'allo') ? 'Allopathic' : 'Homeopathic') + '</span>' + (m.storeName ? ' <span class="store-type" style="background:#fff8e1; color:#e65100; border:1px solid #e65100;">[Store: ' + m.storeName + ']</span>' : '') + ' <button onclick="increaseStock(' + i + ')" style="width:auto; padding:5px 10px; background:#2e7d32;">+ Stock</button>' + ' <button onclick="orderMed(' + i + ')" style="width:auto; padding:5px 10px; background:#1565c0;">Order</button>' + ' <button onclick="delMed(' + i + ')" style="width:auto; padding:5px 10px; background:#d32f2f;">Delete</button></div>';
+    return '<div' + (isLow ? ' class="low-stock"' : '') + ' style="border:1px solid #ddd; padding:10px; margin:5px 0; border-radius:4px;">' + (m.photo ? '<img src="' + m.photo + '" style="width:50px;height:50px;object-fit:cover;"> ' : '') + '<strong>' + m.name + '</strong> - Rs ' + m.price + ' (Stock: ' + m.stock + ')' + (isLow ? ' <span class="low-stock-badge">⚠️ Low stock!</span>' : '') + ' [' + m.cat + '] <span class="store-type ' + (m.storeType || 'homeo') + '">' + ((m.storeType === 'allo') ? 'Allopathic' : 'Homeopathic') + '</span>' + (m.storeName ? ' <span class="store-type" style="background:#fff8e1; color:#e65100; border:1px solid #e65100;">[Store: ' + m.storeName + ']</span>' : '') + (canManageMed(m) ? ' <button onclick="increaseStock(' + i + ')" style="width:auto; padding:5px 10px; background:#2e7d32;">+ Stock</button>' + ' <button onclick="delMed(' + i + ')" style="width:auto; padding:5px 10px; background:#d32f2f;">Delete</button>' : '') + (!isMedOwner(m) ? ' <button onclick="orderMed(' + i + ')" style="width:auto; padding:5px 10px; background:#1565c0;">Order</button>' : '') + '</div>';
   }).join('');
 }
-async function delMed(i) {
+async function delMed(i) { if (!canManageMed(medicines[i])) { alert('Only the owner of this medicine can delete it.'); return; }
   try { if (medicines[i]._id) await fsDelete('medicines', medicines[i]._id); }
   catch (e) { alert('Delete failed: ' + e.message); return; }
   await renderMeds();
 }
-async function increaseStock(i) {
+async function increaseStock(i) { if (!canManageMed(medicines[i])) { alert('Only the owner of this medicine can update its stock.'); return; }
   const qty = prompt('Add how much stock?');
   if (qty === null || qty === '') return;
   const n = parseInt(qty, 10);
@@ -359,7 +359,7 @@ document.getElementById('addMedBtn').onclick = async () => {
   if (!name || !price) { alert('Enter name and price'); return; }
   const photo = document.getElementById('medPhoto').value;
   try {
-    await fsAdd('medicines', { name: name, price: price, stock: stock === '' ? 0 : parseInt(stock, 10), cat: cat, photo: photo, storeType: storeType, storeId: storeId, storeName: storeName, createdAt: new Date().toISOString() });
+    await fsAdd('medicines', { name: name, price: price, stock: stock === '' ? 0 : parseInt(stock, 10), cat: cat, photo: photo, storeType: storeType, storeId: storeId, storeName: storeName, ownerUid: (user && user.uid) || '', ownerEmail: (user && user.email) || '', createdAt: new Date().toISOString() });
   } catch (e) { alert('Add medicine failed: ' + e.message); return; }
   document.getElementById('medName').value = '';
   document.getElementById('medPrice').value = '';
@@ -381,7 +381,7 @@ document.getElementById('bulkAddBtn').onclick = async () => {
     const stock = parts.length > 2 ? parts[2].trim() : '';
     if (!name || !price) continue;
     try {
-      await fsAdd('medicines', { name: name, price: price, stock: stock === '' ? 0 : parseInt(stock, 10), cat: 'Other', photo: '', storeType: 'homeo', createdAt: now });
+      await fsAdd('medicines', { name: name, price: price, stock: stock === '' ? 0 : parseInt(stock, 10), cat: 'Other', photo: '', storeType: 'homeo', ownerUid: (user && user.uid) || '', ownerEmail: (user && user.email) || '', createdAt: now });
       added++;
     } catch (e) { alert('Bulk add failed: ' + e.message); break; }
   }
@@ -397,22 +397,22 @@ async function orderMed(i) {
   const qty = prompt('Enter quantity to order (' + medicines[i].name + '):');
   if (qty === null || qty === '') return;
   const n = parseInt(qty, 10);
-  if (isNaN(n) || n <= 0) { alert('Enter a valid quantity'); return; }
+  if (isNaN(n) || n <= 0) { alert('Enter a valid quantity'); return; } if (isMedOwner(medicines[i])) { alert('You own this medicine, so you cannot order it.'); return; } const availStock = parseInt(medicines[i].stock, 10) || 0; if (n > availStock) { alert('Only ' + availStock + ' in stock. Please reduce the quantity.'); return; }
   const otype = (user && user.type === 'customer') ? 'customer' : 'doctor';
   try {
-    await fsAdd('orders', { med: medicines[i].name, qty: n, price: medicines[i].price, type: otype, by: user ? (user.name || user.email) : 'guest', date: new Date().toLocaleString(), createdAt: new Date().toISOString() });
-  } catch (e) { alert('Order failed: ' + e.message); return; }
+    await fsAdd('orders', { med: medicines[i].name, medId: medicines[i]._id || '', qty: n, price: medicines[i].price, type: otype, by: user ? (user.name || user.email) : 'guest', buyerUid: (user && user.uid) || '', sellerUid: medicines[i].ownerUid || '', date: new Date().toLocaleString(), createdAt: new Date().toISOString() });
+  } catch (e) { alert('Order failed: ' + e.message); return; } try { if (medicines[i]._id) await fsUpdate('medicines', medicines[i]._id, { stock: availStock - n }); } catch (e2) { console.error(e2); } await renderMeds();
   await renderOrders();
   alert('Order placed: ' + n + ' x ' + medicines[i].name);
 }
-async function renderOrders(refresh) {
+function isMyOrder(o) { if (user && user.uid) { if (String(o.buyerUid || '') === String(user.uid)) return true; if (String(o.sellerUid || '') === String(user.uid)) return true; } const who = user ? (user.name || user.email) : ''; return !!(who && String(o.by || '') === String(who)); } async function renderOrders(refresh) {
   if (refresh === undefined) refresh = true;
   if (refresh) {
     try { orders = await fsGet('orders'); orders.sort(byCreated); }
     catch (e) { console.error(e); alert('Could not load orders: ' + e.message); }
   }
-  const doc = orders.filter(o => o.type === 'doctor');
-  const cust = orders.filter(o => o.type === 'customer');
+  const visibleOrders = orders.filter(isMyOrder); const doc = visibleOrders.filter(o => o.type === 'doctor');
+  const cust = visibleOrders.filter(o => o.type === 'customer');
   const item = o => '<div style="border:1px solid #ddd; padding:8px; margin:5px 0; border-radius:4px;"><strong>' + o.qty + ' x ' + o.med + '</strong> - Rs ' + (o.price * o.qty) + ' <small>(' + o.by + ', ' + o.date + ')</small></div>';
   document.getElementById('docOrders').innerHTML = doc.length ? doc.map(item).join('') : '<p>No doctor orders.</p>';
   document.getElementById('custOrders').innerHTML = cust.length ? cust.map(item).join('') : '<p>No customer orders.</p>';
@@ -450,7 +450,7 @@ function clearStoreFilter() {
   renderStores(false);
   renderMeds(false);
 }
-let detailStoreIdx=-1; let storeReviewsCache=[]; let storeReviewsLoaded=false; function escH(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); } async function loadStoreReviewsCache(force){ if(storeReviewsLoaded&&!force) return storeReviewsCache; try{ storeReviewsCache=await fsGet('storeReviews'); storeReviewsCache.sort(byCreated); }catch(e){ console.error(e); storeReviewsCache=[]; } storeReviewsLoaded=true; return storeReviewsCache; } function storeAvgRating(storeId){ var list=storeReviewsCache.filter(function(r){ return String(r.storeId||'')===String(storeId||''); }); if(list.length===0) return {avg:0,count:0}; var sum=0; for(var k=0;k<list.length;k++){ sum+=(parseFloat(list[k].stars)||0); } return {avg:sum/list.length,count:list.length}; } function storeRatingBadge(storeId){ var r=storeAvgRating(storeId); if(!r.count) return ''; return ' <span class="store-type" style="background:#fff8e1; color:#e65100; border:1px solid #e65100;" title="'+r.count+' review(s)">★ '+r.avg.toFixed(1)+' ('+r.count+')</span>'; } async function openStore(i){ var s=stores[i]; if(!s) return; detailStoreIdx=i; if(medicines.length===0){ try{ medicines=await fsGet('medicines'); medicines.sort(byCreated); }catch(e){} } await loadStoreReviewsCache(); renderStoreDetail(); document.getElementById('storeListView').classList.add('hidden'); document.getElementById('storeDetailView').classList.remove('hidden'); window.scrollTo(0,0); } function backToStores(){ detailStoreIdx=-1; document.getElementById('storeDetailView').classList.add('hidden'); document.getElementById('storeListView').classList.remove('hidden'); } function renderStoreDetail(){ var s=stores[detailStoreIdx]; if(!s) return; document.getElementById('detailStoreName').textContent=s.name||''; document.getElementById('detailStoreDoctor').textContent='Doctor: '+(s.doctor||''); document.getElementById('detailStoreType').innerHTML='<span class="store-type '+(s.type||'homeo')+'">'+(s.type==='allo'?'Allopathic':'Homeopathic')+'</span>'; var medList=document.getElementById('detailMedList'); var idx=[]; for(var i=0;i<medicines.length;i++){ if(String(medicines[i].storeId||'')===String(s._id||'')) idx.push(i); } if(idx.length===0){ medList.innerHTML='<p>No medicines in this store yet.</p>'; } else { medList.innerHTML=idx.map(function(i){ var m=medicines[i]; return '<div style="border:1px solid #ddd; padding:10px; margin:5px 0; border-radius:4px;"><strong>'+escH(m.name)+'</strong> - Rs '+escH(m.price)+' (Stock: '+escH(m.stock)+') <button onclick="orderMed('+i+')" style="width:auto; padding:5px 10px; background:#1565c0;">Order</button></div>'; }).join(''); } renderStoreReviews(s._id); } function renderStoreReviews(storeId){ var r=storeAvgRating(storeId); var avgEl=document.getElementById('detailAvgRating'); if(avgEl){ avgEl.textContent=r.count?('★ '+r.avg.toFixed(1)+' ('+r.count+' review'+(r.count>1?'s':'')+')'):''; } var listEl=document.getElementById('detailReviewList'); var list=storeReviewsCache.filter(function(x){ return String(x.storeId||'')===String(storeId||''); }); if(list.length===0){ listEl.innerHTML='<p>No reviews yet.</p>'; return; } listEl.innerHTML=list.map(function(x){ var stars=parseInt(x.stars,10)||0; var sHtml=''; for(var k=0;k<5;k++){ sHtml+=(k<stars?'★':'☆'); } return '<div style="border:1px solid #ddd; padding:8px; margin:5px 0; border-radius:4px;"><strong>'+escH(x.by||'Customer')+'</strong> <span style="color:#e65100;">'+sHtml+'</span><br>'+escH(x.text||'')+'</div>'; }).join(''); } document.getElementById('backToStoresBtn').onclick=function(){ backToStores(); }; document.getElementById('detailAddRevBtn').onclick=async function(){ var s=stores[detailStoreIdx]; if(!s){ alert('No store selected'); return; } var stars=parseInt(document.getElementById('detailRevStars').value,10)||5; var text=document.getElementById('detailRevText').value.trim(); if(!text){ alert('Please write a review'); return; } try{ await fsAdd('storeReviews',{storeId:String(s._id||''),storeName:(s.name||''),stars:stars,text:text,by:((typeof user!=='undefined'&&user&&(user.name||user.email))||'Customer'),createdAt:new Date().toISOString()}); }catch(e){ alert('Could not submit review: '+e.message); return; } document.getElementById('detailRevText').value=''; await loadStoreReviewsCache(true); renderStoreReviews(s._id); renderStores(false); }; async function renderStores(refresh){ await loadStoreReviewsCache();
+let detailStoreIdx=-1; let storeReviewsCache=[]; let storeReviewsLoaded=false; function escH(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); } async function loadStoreReviewsCache(force){ if(storeReviewsLoaded&&!force) return storeReviewsCache; try{ storeReviewsCache=await fsGet('storeReviews'); storeReviewsCache.sort(byCreated); }catch(e){ console.error(e); storeReviewsCache=[]; } storeReviewsLoaded=true; return storeReviewsCache; } function storeAvgRating(storeId){ var list=storeReviewsCache.filter(function(r){ return String(r.storeId||'')===String(storeId||''); }); if(list.length===0) return {avg:0,count:0}; var sum=0; for(var k=0;k<list.length;k++){ sum+=(parseFloat(list[k].stars)||0); } return {avg:sum/list.length,count:list.length}; } function storeRatingBadge(storeId){ var r=storeAvgRating(storeId); if(!r.count) return ''; return ' <span class="store-type" style="background:#fff8e1; color:#e65100; border:1px solid #e65100;" title="'+r.count+' review(s)">★ '+r.avg.toFixed(1)+' ('+r.count+')</span>'; } async function openStore(i){ var s=stores[i]; if(!s) return; detailStoreIdx=i; if(medicines.length===0){ try{ medicines=await fsGet('medicines'); medicines.sort(byCreated); }catch(e){} } await loadStoreReviewsCache(); renderStoreDetail(); document.getElementById('storeListView').classList.add('hidden'); document.getElementById('storeDetailView').classList.remove('hidden'); window.scrollTo(0,0); } function backToStores(){ detailStoreIdx=-1; document.getElementById('storeDetailView').classList.add('hidden'); document.getElementById('storeListView').classList.remove('hidden'); } function renderStoreDetail(){ var s=stores[detailStoreIdx]; if(!s) return; document.getElementById('detailStoreName').textContent=s.name||''; document.getElementById('detailStoreDoctor').textContent='Doctor: '+(s.doctor||''); document.getElementById('detailStoreType').innerHTML='<span class="store-type '+(s.type||'homeo')+'">'+(s.type==='allo'?'Allopathic':'Homeopathic')+'</span>'; var medList=document.getElementById('detailMedList'); var idx=[]; for(var i=0;i<medicines.length;i++){ if(String(medicines[i].storeId||'')===String(s._id||'')) idx.push(i); } if(idx.length===0){ medList.innerHTML='<p>No medicines in this store yet.</p>'; } else { medList.innerHTML=idx.map(function(i){ var m=medicines[i]; return '<div style="border:1px solid #ddd; padding:10px; margin:5px 0; border-radius:4px;"><strong>'+escH(m.name)+'</strong> - Rs '+escH(m.price)+' (Stock: '+escH(m.stock)+')'+(!isMedOwner(m)?' <button onclick="orderMed('+i+')" style="width:auto; padding:5px 10px; background:#1565c0;">Order</button>':'')+'</div>'; }).join(''); } renderStoreReviews(s._id); } function renderStoreReviews(storeId){ var r=storeAvgRating(storeId); var avgEl=document.getElementById('detailAvgRating'); if(avgEl){ avgEl.textContent=r.count?('★ '+r.avg.toFixed(1)+' ('+r.count+' review'+(r.count>1?'s':'')+')'):''; } var listEl=document.getElementById('detailReviewList'); var list=storeReviewsCache.filter(function(x){ return String(x.storeId||'')===String(storeId||''); }); if(list.length===0){ listEl.innerHTML='<p>No reviews yet.</p>'; return; } listEl.innerHTML=list.map(function(x){ var stars=parseInt(x.stars,10)||0; var sHtml=''; for(var k=0;k<5;k++){ sHtml+=(k<stars?'★':'☆'); } return '<div style="border:1px solid #ddd; padding:8px; margin:5px 0; border-radius:4px;"><strong>'+escH(x.by||'Customer')+'</strong> <span style="color:#e65100;">'+sHtml+'</span><br>'+escH(x.text||'')+'</div>'; }).join(''); } document.getElementById('backToStoresBtn').onclick=function(){ backToStores(); }; document.getElementById('detailAddRevBtn').onclick=async function(){ var s=stores[detailStoreIdx]; if(!s){ alert('No store selected'); return; } var stars=parseInt(document.getElementById('detailRevStars').value,10)||5; var text=document.getElementById('detailRevText').value.trim(); if(!text){ alert('Please write a review'); return; } try{ await fsAdd('storeReviews',{storeId:String(s._id||''),storeName:(s.name||''),stars:stars,text:text,by:((typeof user!=='undefined'&&user&&(user.name||user.email))||'Customer'),createdAt:new Date().toISOString()}); }catch(e){ alert('Could not submit review: '+e.message); return; } document.getElementById('detailRevText').value=''; await loadStoreReviewsCache(true); renderStoreReviews(s._id); renderStores(false); }; async function renderStores(refresh){ await loadStoreReviewsCache();
   if (refresh === undefined) refresh = true;
   if (refresh) {
     try { stores = await fsGet('stores'); stores.sort(byCreated); }
@@ -476,7 +476,7 @@ async function renderStores(refresh){ await loadStoreReviewsCache(); if(refresh=
   const type = document.getElementById('storeTypeSel').value;
   if (!name || !doctor) { alert('Store name and doctor name are mandatory'); return; }
   try {
-    await fsAdd('stores', { name: name, doctor: doctor, type: type, createdAt: new Date().toISOString() });
+    await fsAdd('stores', { name: name, doctor: doctor, type: type, ownerUid: (user && user.uid) || '', ownerEmail: (user && user.email) || '', createdAt: new Date().toISOString() });
   } catch (e) { alert('Create store failed: ' + e.message); return; }
   document.getElementById('storeName').value = '';
   document.getElementById('doctorName').value = '';
