@@ -268,8 +268,8 @@ async function showDashboard() {
   document.getElementById('refLink').textContent = 'https://marvelous-genie-304f9f.netlify.app/?ref=' + (user.uid || 'guest');
   const savedPay = localStorage.getItem('medinest_pay');
   if (savedPay) { document.getElementById('payMethod').value = savedPay; }
-  await renderMeds();
-  await renderStores(); await renderLedger();
+  await renderMeds(); await renderLedger();
+  await renderStores();
   await renderOrders();
 }
 
@@ -320,7 +320,7 @@ async function renderMeds(refresh) {
 async function delMed(i) {
   try { if (medicines[i]._id) await fsDelete('medicines', medicines[i]._id); }
   catch (e) { alert('Delete failed: ' + e.message); return; }
-  await renderMeds();
+  await renderMeds(); await renderLedger();
 }
 async function increaseStock(i) {
   const qty = prompt('Add how much stock?');
@@ -330,7 +330,7 @@ async function increaseStock(i) {
   const newStock = (parseInt(medicines[i].stock, 10) || 0) + n;
   try { if (medicines[i]._id) await fsUpdate('medicines', medicines[i]._id, { stock: newStock }); }
   catch (e) { alert('Stock update failed: ' + e.message); return; }
-  await renderMeds();
+  await renderMeds(); await renderLedger();
 }
 document.getElementById('addMedBtn').onclick = async () => {
   const name = document.getElementById('medName').value;
@@ -347,7 +347,7 @@ document.getElementById('addMedBtn').onclick = async () => {
   document.getElementById('medPrice').value = '';
   document.getElementById('medStock').value = '';
   document.getElementById('medPhoto').value = '';
-  await renderMeds();
+  await renderMeds(); await renderLedger();
 };
 
 // Bulk add medicines (format: name - price - stock, one per line)
@@ -369,7 +369,7 @@ document.getElementById('bulkAddBtn').onclick = async () => {
   }
   if (added > 0) {
     document.getElementById('bulkText').value = '';
-    await renderMeds();
+    await renderMeds(); await renderLedger();
   }
   alert(added + ' medicine(s) added');
 };
@@ -437,7 +437,7 @@ document.getElementById('createStoreBtn').onclick = async () => {
   } catch (e) { alert('Create store failed: ' + e.message); return; }
   document.getElementById('storeName').value = '';
   document.getElementById('doctorName').value = '';
-  await renderStores(); await renderLedger();
+  await renderStores();
 };
 
 renderMeds();
