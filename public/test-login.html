@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head><title>Medinest Login Test</title><meta charset="utf-8"></head>
+<body style="font-family: sans-serif; max-width: 400px; margin: 50px auto; padding: 20px;">
+<h2>Medinest Login Test</h2>
+<input type="email" id="email" placeholder="Email" style="width: 100%; padding: 10px; margin: 10px 0;"><br>
+<input type="password" id="pass" placeholder="Password" style="width: 100%; padding: 10px; margin: 10px 0;"><br>
+<button id="btn" style="width: 100%; padding: 12px; background: #4CAF50; color: white; border: none; cursor: pointer;">Sign In</button>
+<div id="out" style="margin-top: 20px; padding: 10px; background: #f0f0f0; white-space: pre-wrap;"></div>
+<script>
+document.getElementById('btn').addEventListener('click', async function() {
+  const out = document.getElementById('out');
+  const email = document.getElementById('email').value;
+  const pass = document.getElementById('pass').value;
+  out.textContent = 'Sending...';
+  try {
+    const r = await fetch('/.netlify/functions/auth', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({action: 'signin', email: email, password: pass})
+    });
+    const d = await r.json();
+    if (d.idToken) {
+      out.textContent = 'SUCCESS! Token received.\nUID: ' + d.localId + '\nEmail: ' + d.email;
+      out.style.background = '#d4edda';
+    } else {
+      out.textContent = 'FAILED: ' + JSON.stringify(d);
+      out.style.background = '#f8d7da';
+    }
+  } catch (e) {
+    out.textContent = 'ERROR: ' + e.message;
+    out.style.background = '#f8d7da';
+  }
+});
+</script>
+</body>
+</html>
