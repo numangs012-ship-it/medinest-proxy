@@ -30,13 +30,10 @@ button:hover { background: #1b5e20; }
 .low-stock-badge { color: #d84315; font-weight: bold; }
 #lowStockCount { color: #d84315; font-size: 14px; font-weight: bold; }
 </style>
-
-
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script></head>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
+</head>
 <body>
 <div class="header"><h1>🌿 Medinest</h1><p>Medicine Stores, Orders & Khata</p></div>
-
-
 <!-- LOGIN -->
 <div id="loginDiv" class="container">
 <div class="card">
@@ -49,8 +46,6 @@ button:hover { background: #1b5e20; }
 <p style="text-align:center; margin-top:10px;"><a href="#" id="showSignup">Create Account</a></p><p style="text-align:center; margin-top:10px;"><a href="#" id="forgotPass">Forgot Password?</a></p>
 </div>
 </div>
-
-
 <!-- SIGNUP -->
 <div id="signupDiv" class="container hidden">
 <div class="card">
@@ -69,21 +64,24 @@ button:hover { background: #1b5e20; }
 <p style="text-align:center; margin-top:10px;"><a href="#" id="showLogin">Back to Login</a></p>
 </div>
 </div>
-
 <!-- DASHBOARD -->
 <div id="dashDiv" class="container hidden">
 <div class="card">
 <h2 id="welcomeMsg">Welcome</h2>
 <button id="logoutBtn" style="width:auto; padding:8px 20px;">Logout</button>
 </div>
-
-<div class="card"><h3>My Referral</h3><p>Share: <span id="refLink"></span></p><button id="copyRef">Copy Link</button></div><div class="card"><h3>Payment Methods</h3><select id="payMethod"><option>Cash on Delivery (COD)</option><option>Online - JazzCash</option><option>Online - Easypaisa</option><option>Bank Transfer</option></select></div><div class="card"><h3>Delivery Fee Calculator</h3><p><small>For customers only (not doctor-to-doctor)</small></p><input type="number" id="delQty" placeholder="Quantity"><input type="number" id="delWeight" placeholder="Weight (kg)"><input type="number" id="delDist" placeholder="Distance (km)"><button id="calcDelBtn">Calculate</button><p id="delResult"></p></div><div class="tabs">
+<div class="card"><h3>My Referral</h3><p>Share: <span id="refLink"></span></p><button id="copyRef">Copy Link</button></div>
+<div class="card"><h3>Payment Methods</h3><select id="payMethod"><option>Cash on Delivery (COD)</option><option>Online - JazzCash</option><option>Online - Easypaisa</option><option>Bank Transfer</option></select></div>
+<div class="card"><h3>Delivery Fee Calculator</h3><p><small>For customers only (not doctor-to-doctor)</small></p><input type="number" id="delQty" placeholder="Quantity"><input type="number" id="delWeight" placeholder="Weight (kg)"><input type="number" id="delDist" placeholder="Distance (km)"><button id="calcDelBtn">Calculate</button><p id="delResult"></p></div>
+<div class="tabs">
 <button class="tab active" data-tab="stores">Stores</button>
 <button class="tab" data-tab="orders">Orders</button>
-<button class="tab" data-tab="tracking">Tracking</button><button class="tab" data-tab="ledger">Ledger</button>
+<button class="tab" data-tab="tracking">Tracking</button>
+<button class="tab" data-tab="ledger">Ledger</button>
 </div>
-
-<div id="tab-stores"><div id="storeListView"><div class="card"><input type="text" id="storeSearch" placeholder="Search stores or doctors..."></div>
+<div id="tab-stores">
+<div id="storeListView">
+<div class="card"><input type="text" id="storeSearch" placeholder="Search stores or doctors..."></div>
 <div class="card"><h3>Create Store</h3>
 <input type="text" id="storeName" placeholder="Store/Clinic Name (e.g. Al-Shifa Clinic)">
 <input type="text" id="doctorName" placeholder="Doctor Name (mandatory)">
@@ -96,18 +94,53 @@ button:hover { background: #1b5e20; }
 <button class="store-type homeo" id="filterHomeo" style="cursor:pointer;">Homeopathic</button>
 <button class="store-type allo" id="filterAllo" style="cursor:pointer;">Allopathic</button>
 <button class="store-type" id="filterAll" style="cursor:pointer; background:#f5f5f5;">All</button>
-<p style="margin-top:15px;">Select your store type to get started.</p> </div> </div> <div id="storeDetailView" class="hidden"> <div class="card"> <button id="backToStoresBtn" style="width:auto; padding:8px 20px; margin-bottom:10px;">← Back to Stores</button> <button id="delStoreBtn" class="hidden" style="width:auto; padding:8px 20px; margin-bottom:10px; background:#d32f2f;">Delete Store</button> <h3 id="detailStoreName"></h3> <p id="detailStoreDoctor"></p> <p id="detailStoreType"></p> <hr style="margin:10px 0;"> <h4>Medicines in this store</h4> <div id="detailMedList"><p>No medicines in this store yet.</p></div> <hr style="margin:10px 0;"> <h4>Store Reviews <span id="detailAvgRating" style="font-size:14px;"></span></h4> <div id="detailReviewList"><p>No reviews yet.</p></div> <h4 style="margin-top:10px;">Write a Review</h4> <select id="detailRevStars"><option value="5">★★★★★ 5</option><option value="4">★★★★ 4</option><option value="3">★★★ 3</option><option value="2">★★ 2</option><option value="1">★ 1</option></select> <input type="text" id="detailRevText" placeholder="Write a review for this store..."> <button id="detailAddRevBtn">Submit Review</button> </div> </div>
+<p style="margin-top:15px;">Select your store type to get started.</p>
+</div>
+</div>
+<div id="storeDetailView" class="hidden">
 <div class="card">
-<h3>Medicines <span id="lowStockCount"></span></h3><div id="storeFilterBar"></div><div id="medList"><p>No medicines yet.</p></div><h4 style="margin-top:15px;">Add Medicine</h4><input type="text" id="medName" placeholder="Medicine Name"><input type="number" id="medPrice" placeholder="Price (Rs)"><input type="number" id="medStock" placeholder="Stock Quantity"><select id="medCat"><option value="Tablet">Tablet</option><option value="Syrup">Syrup</option><option value="Capsule">Capsule</option><option value="Drops">Drops</option><option value="Injection">Injection</option><option value="Ointment">Ointment</option><option value="Other">Other</option></select><select id="medStoreType"><option value="homeo">Homeopathic</option><option value="allo">Allopathic</option></select><select id="medStore"><option value="">Select Store</option></select><input type="text" id="medPhoto" placeholder="Photo URL (optional)"><button id="addMedBtn">Add Medicine</button>
-<h4 style="margin-top:15px;">Bulk Add</h4><textarea id="bulkText" placeholder="Format: name - price - stock (one per line)&#10;Example:&#10;Panadol - 50 - 100&#10;Brufen - 80 - 50" rows="4"></textarea>
-<p><strong>OR Scan Photo:</strong></p><input type="file" id="bulkPhoto" accept="image/*"><button id="scanPhotoBtn">Scan Photo</button><p id="scanStatus"></p><button id="bulkAddBtn">Add All</button>
+<button id="backToStoresBtn" style="width:auto; padding:8px 20px; margin-bottom:10px;">← Back to Stores</button>
+<button id="delStoreBtn" class="hidden" style="width:auto; padding:8px 20px; margin-bottom:10px; background:#d32f2f;">Delete Store</button>
+<h3 id="detailStoreName"></h3>
+<p id="detailStoreDoctor"></p>
+<p id="detailStoreType"></p>
+<hr style="margin:10px 0;">
+<h4>Medicines in this store</h4>
+<div id="detailMedList"><p>No medicines in this store yet.</p></div>
+<hr style="margin:10px 0;">
+<h4>Store Reviews <span id="detailAvgRating" style="font-size:14px;"></span></h4>
+<div id="detailReviewList"><p>No reviews yet.</p></div>
+<h4 style="margin-top:10px;">Write a Review</h4>
+<select id="detailRevStars"><option value="5">★★★★★ 5</option><option value="4">★★★★ 4</option><option value="3">★★★ 3</option><option value="2">★★ 2</option><option value="1">★ 1</option></select>
+<input type="text" id="detailRevText" placeholder="Write a review for this store...">
+<button id="detailAddRevBtn">Submit Review</button>
 </div>
 </div>
-
+<div class="card">
+<h3>Medicines <span id="lowStockCount"></span></h3>
+<div id="storeFilterBar"></div>
+<div id="medList"><p>No medicines yet.</p></div>
+<h4 style="margin-top:15px;">Add Medicine</h4>
+<input type="text" id="medName" placeholder="Medicine Name">
+<input type="text" id="medCompany" placeholder="Company (e.g. GSK)">
+<input type="number" id="medPrice" placeholder="Price (Rs)">
+<input type="number" id="medStock" placeholder="Stock Quantity">
+<select id="medCat"><option value="Tablet">Tablet</option><option value="Syrup">Syrup</option><option value="Capsule">Capsule</option><option value="Drops">Drops</option><option value="Injection">Injection</option><option value="Ointment">Ointment</option><option value="Other">Other</option></select>
+<select id="medStoreType"><option value="homeo">Homeopathic</option><option value="allo">Allopathic</option></select>
+<select id="medStore"><option value="">Select Store</option></select>
+<input type="text" id="medPhoto" placeholder="Photo URL (optional)">
+<button id="addMedBtn">Add Medicine</button>
+<h4 style="margin-top:15px;">Bulk Add</h4>
+<textarea id="bulkText" placeholder="Format: name - price - stock - company (company optional, one per line)&#10;Example:&#10;Panadol - 50 - 100 - GSK&#10;Brufen - 80 - 50" rows="4"></textarea>
+<p><strong>OR Scan Photo:</strong></p>
+<input type="file" id="bulkPhoto" accept="image/*">
+<button id="scanPhotoBtn">Scan Photo</button><p id="scanStatus"></p>
+<button id="bulkAddBtn">Add All</button>
+</div>
+</div>
 <div id="tab-orders" class="hidden">
 <div class="card"><h3>My Orders</h3><h4>Doctor Orders</h4><div id="docOrders"><p>No doctor orders.</p></div><h4>Customer Orders</h4><div id="custOrders"><p>No customer orders.</p></div></div>
 </div>
-
 <div id="tab-tracking" class="hidden">
 <div class="card">
 <h3>Delivery Tracking</h3>
@@ -120,21 +153,16 @@ button:hover { background: #1b5e20; }
 <p>Track your medicine deliveries online in real-time.</p>
 </div>
 </div>
-<div id="tab-ledger" class="hidden"><div class="card"><h3>Balance / Ledger</h3><div id="ledgerList"><p>No transactions yet.</p></div><h4>Add Transaction</h4><input type="text" id="ledDesc" placeholder="Description"><input type="number" id="ledAmt" placeholder="Amount"><select id="ledType"><option value="pending">Pending</option><option value="received">Received</option></select><button id="addLedBtn">Add</button></div></div><div class="card"><h3>Customer Support</h3><p>📞 Phone/WhatsApp: <a href="https://wa.me/923198086233">+923198086233</a></p><p>📢 WhatsApp Channel: <a href="https://whatsapp.com/channel/0029Vb9MT0kChq6MFsUW142v">medinest🌿☘️</a></p></div>
+<div id="tab-ledger" class="hidden">
+<div class="card"><h3>Balance / Ledger</h3><div id="ledgerList"><p>No transactions yet.</p></div><h4>Add Transaction</h4><input type="text" id="ledDesc" placeholder="Description"><input type="number" id="ledAmt" placeholder="Amount"><select id="ledType"><option value="pending">Pending</option><option value="received">Received</option></select><button id="addLedBtn">Add</button></div>
 </div>
-
+<div class="card"><h3>Customer Support</h3><p>📞 Phone/WhatsApp: <a href="https://wa.me/923198086233">+923198086233</a></p><p>📢 WhatsApp Channel: <a href="https://whatsapp.com/channel/0029Vb9MT0kChq6MFsUW142v">medinest🌿☘️</a></p></div>
+</div>
 <script>
 const API = 'https://marvelous-genie-304f9f.netlify.app/.netlify/functions/auth';
 let user = null;
-
-// ---------- Firestore: LIVE multi-user data ----------
 const FS = 'https://firestore.googleapis.com/v1/projects/medinest-36419/databases/(default)/documents';
-
-// ID token from the auth-proxy sign-in (equivalent of Firebase currentUser.getIdToken())
-function getIdToken() {
-  return (user && user.token) ? user.token : null;
-}
-
+function getIdToken() { return (user && user.token) ? user.token : null; }
 function fsEncode(obj) {
   const fields = {};
   for (const k of Object.keys(obj)) {
@@ -146,7 +174,6 @@ function fsEncode(obj) {
   }
   return { fields };
 }
-
 function fsDecode(doc) {
   const out = { _id: (doc.name || '').split('/').pop() };
   const fields = doc.fields || {};
@@ -160,11 +187,7 @@ function fsDecode(doc) {
   }
   return out;
 }
-
-function byCreated(a, b) {
-  return String(a.createdAt || '').localeCompare(String(b.createdAt || ''));
-}
-
+function byCreated(a, b) { return String(a.createdAt || '').localeCompare(String(b.createdAt || '')); }
 async function fsGet(collection) {
   const token = getIdToken();
   if (!token) return [];
@@ -174,7 +197,6 @@ async function fsGet(collection) {
   const d = await r.json();
   return (d.documents || []).map(fsDecode);
 }
-
 async function fsAdd(collection, data) {
   const token = getIdToken();
   if (!token) throw new Error('Not signed in');
@@ -187,7 +209,6 @@ async function fsAdd(collection, data) {
   const d = await r.json();
   return (d.name || '').split('/').pop();
 }
-
 async function fsUpdate(collection, docId, data) {
   const token = getIdToken();
   if (!token) throw new Error('Not signed in');
@@ -199,7 +220,6 @@ async function fsUpdate(collection, docId, data) {
   });
   if (!r.ok) throw new Error('Firestore update failed (HTTP ' + r.status + ')');
 }
-
 async function fsDelete(collection, docId) {
   const token = getIdToken();
   if (!token) throw new Error('Not signed in');
@@ -209,15 +229,11 @@ async function fsDelete(collection, docId) {
   });
   if (!r.ok && r.status !== 404) throw new Error('Firestore delete failed (HTTP ' + r.status + ')');
 }
-// ---------- end Firestore ----------
-
 document.getElementById('showSignup').onclick = (e) => { e.preventDefault(); document.getElementById('loginDiv').classList.add('hidden'); document.getElementById('signupDiv').classList.remove('hidden'); };
-document.getElementById('showLogin').onclick = (e) => { e.preventDefault(); document.getElementById('signupDiv').classList.add('hidden'); document.getElementById('loginDiv').classList.remove('hidden'); }; document.getElementById('forgotPass').onclick = (e) => { e.preventDefault(); const email = prompt('Enter your email address:'); if (email) { alert('Password reset link sent to ' + email + ' (demo)'); } }; // Password reset (demo)
-
-// Show/hide password toggles
+document.getElementById('showLogin').onclick = (e) => { e.preventDefault(); document.getElementById('signupDiv').classList.add('hidden'); document.getElementById('loginDiv').classList.remove('hidden'); };
+document.getElementById('forgotPass').onclick = (e) => { e.preventDefault(); const email = prompt('Enter your email address:'); if (email) { alert('Password reset link sent to ' + email + ' (demo)'); } };
 document.getElementById('showLoginPass').onchange = (e) => { document.getElementById('loginPass').type = e.target.checked ? 'text' : 'password'; };
 document.getElementById('showSignupPass').onchange = (e) => { document.getElementById('suPass').type = e.target.checked ? 'text' : 'password'; };
-
 document.getElementById('loginBtn').onclick = async () => {
   const email = document.getElementById('loginEmail').value;
   const pass = document.getElementById('loginPass').value;
@@ -227,18 +243,10 @@ document.getElementById('loginBtn').onclick = async () => {
   try {
     const r = await fetch(API, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({action: 'signin', email, password: pass}) });
     const d = await r.json();
-    if (d.idToken) {
-      user = { email, uid: d.localId, token: d.idToken };
-      localStorage.setItem('medinest_user', JSON.stringify(user));
-      showDashboard();
-    } else {
-      err.innerHTML = '<div class="error">' + (d.error || 'Login failed') + '</div>';
-    }
-  } catch (e) {
-    err.innerHTML = '<div class="error">Error: ' + e.message + '</div>';
-  }
+    if (d.idToken) { user = { email, uid: d.localId, token: d.idToken }; localStorage.setItem('medinest_user', JSON.stringify(user)); showDashboard(); }
+    else { err.innerHTML = '<div class="error">' + (d.error || 'Login failed') + '</div>'; }
+  } catch (e) { err.innerHTML = '<div class="error">Error: ' + e.message + '</div>'; }
 };
-
 document.getElementById('signupBtn').onclick = async () => {
   const name = document.getElementById('suName').value;
   const email = document.getElementById('suEmail').value;
@@ -250,18 +258,10 @@ document.getElementById('signupBtn').onclick = async () => {
   try {
     const r = await fetch(API, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({action: 'signup', email, password: pass, name, accountType: type}) });
     const d = await r.json();
-    if (d.idToken) {
-      user = { email, uid: d.localId, token: d.idToken, name, type };
-      localStorage.setItem('medinest_user', JSON.stringify(user));
-      showDashboard();
-    } else {
-      err.innerHTML = '<div class="error">' + (d.error || 'Signup failed') + '</div>';
-    }
-  } catch (e) {
-    err.innerHTML = '<div class="error">Error: ' + e.message + '</div>';
-  }
+    if (d.idToken) { user = { email, uid: d.localId, token: d.idToken, name, type }; localStorage.setItem('medinest_user', JSON.stringify(user)); showDashboard(); }
+    else { err.innerHTML = '<div class="error">' + (d.error || 'Signup failed') + '</div>'; }
+  } catch (e) { err.innerHTML = '<div class="error">Error: ' + e.message + '</div>'; }
 };
-
 async function showDashboard() {
   document.getElementById('loginDiv').classList.add('hidden');
   document.getElementById('signupDiv').classList.add('hidden');
@@ -269,49 +269,41 @@ async function showDashboard() {
   document.getElementById('welcomeMsg').textContent = 'Welcome, ' + (user.name || user.email);
   document.getElementById('refLink').textContent = 'https://marvelous-genie-304f9f.netlify.app/?ref=' + (user.uid || 'guest');
   const savedPay = localStorage.getItem('medinest_pay');
-  if (savedPay) { document.getElementById('payMethod').value = savedPay; } await renderLedger();
+  if (savedPay) { document.getElementById('payMethod').value = savedPay; }
+  await renderLedger();
   await renderMeds();
   await renderStores();
   await renderOrders();
 }
-
-document.getElementById('logoutBtn').onclick = () => {
-  localStorage.removeItem('medinest_user');
-  user = null;
-  document.getElementById('dashDiv').classList.add('hidden');
-  document.getElementById('loginDiv').classList.remove('hidden');
-};
-
+document.getElementById('logoutBtn').onclick = () => { localStorage.removeItem('medinest_user'); user = null; document.getElementById('dashDiv').classList.add('hidden'); document.getElementById('loginDiv').classList.remove('hidden'); };
 document.querySelectorAll('.tab').forEach(t => {
   t.onclick = () => {
     document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
     t.classList.add('active');
     document.getElementById('tab-stores').classList.add('hidden');
     document.getElementById('tab-orders').classList.add('hidden');
-    document.getElementById('tab-tracking').classList.add('hidden'); document.getElementById('tab-ledger').classList.add('hidden');
+    document.getElementById('tab-tracking').classList.add('hidden');
+    document.getElementById('tab-ledger').classList.add('hidden');
     document.getElementById('tab-' + t.dataset.tab).classList.remove('hidden');
   };
 });
-
 let medicines = [];
-let activeFilter = 'all'; function isMedOwner(m) { return !!(user && user.uid && m && m.ownerUid && String(m.ownerUid) === String(user.uid)); } function isUnownedMed(m) { return !(m && m.ownerUid); } function canManageMed(m) { return isMedOwner(m) || isUnownedMed(m); } function isStoreOwner(s) { return !!(user && s && ((user.uid && s.ownerUid && String(s.ownerUid) === String(user.uid)) || (user.email && s.ownerEmail && String(s.ownerEmail).toLowerCase() === String(user.email).toLowerCase()))); }
-// Store-based filtering: viewingStore holds the selected store's id (null = show all)
+let activeFilter = 'all';
+function isMedOwner(m) { return !!(user && user.uid && m && m.ownerUid && String(m.ownerUid) === String(user.uid)); }
+function isUnownedMed(m) { return !(m && m.ownerUid); }
+function canManageMed(m) { return isMedOwner(m) || isUnownedMed(m); }
+function isStoreOwner(s) { return !!(user && s && ((user.uid && s.ownerUid && String(s.ownerUid) === String(user.uid)) || (user.email && s.ownerEmail && String(s.ownerEmail).toLowerCase() === String(user.email).toLowerCase()))); }
 function updateStoreFilterBar() {
   const bar = document.getElementById('storeFilterBar');
   if (!bar) return;
   if (viewingStore) {
     bar.innerHTML = '<p style="margin:5px 0; padding:8px; background:#e8f5e9; border-radius:4px;"><strong>Showing medicines from:</strong> ' + viewingStoreName + ' <button id="clearStoreFilterBtn" style="width:auto; padding:5px 10px; margin-left:10px;">Show all</button></p>';
     document.getElementById('clearStoreFilterBtn').onclick = clearStoreFilter;
-  } else {
-    bar.innerHTML = '';
-  }
+  } else { bar.innerHTML = ''; }
 }
 async function renderMeds(refresh) {
   if (refresh === undefined) refresh = true;
-  if (refresh) {
-    try { medicines = await fsGet('medicines'); medicines.sort(byCreated); }
-    catch (e) { console.error(e); alert('Could not load medicines: ' + e.message); }
-  }
+  if (refresh) { try { medicines = await fsGet('medicines'); medicines.sort(byCreated); } catch (e) { console.error(e); alert('Could not load medicines: ' + e.message); } }
   const list = document.getElementById('medList');
   const lowCount = medicines.filter(m => isMedOwner(m) && parseInt(m.stock, 10) < 10).length;
   const lowEl = document.getElementById('lowStockCount');
@@ -322,22 +314,24 @@ async function renderMeds(refresh) {
     if (viewingStore && String(medicines[i].storeId || '') !== String(viewingStore)) return false;
     if (activeFilter !== 'all' && (medicines[i].storeType || 'homeo') !== activeFilter) return false;
     if (!q) return true;
-    const hay = ((medicines[i].name || '') + ' ' + (medicines[i].cat || '') + ' ' + (medicines[i].storeType || '') + ' ' + (medicines[i].storeName || '')).toLowerCase();
+    const hay = ((medicines[i].name || '') + ' ' + (medicines[i].cat || '') + ' ' + (medicines[i].storeType || '') + ' ' + (medicines[i].storeName || '') + ' ' + (medicines[i].company || '')).toLowerCase();
     return hay.indexOf(q) !== -1;
   });
   updateStoreFilterBar();
   list.innerHTML = fidx.map(i => {
     const m = medicines[i];
     const isLow = isMedOwner(m) && parseInt(m.stock, 10) < 10;
-    return '<div' + (isLow ? ' class="low-stock"' : '') + ' style="border:1px solid #ddd; padding:10px; margin:5px 0; border-radius:4px;">' + (m.photo ? '<img src="' + m.photo + '" style="width:50px;height:50px;object-fit:cover;"> ' : '') + '<strong>' + m.name + '</strong> - Rs ' + m.price + ' (Stock: ' + m.stock + ')' + (isLow ? ' <span class="low-stock-badge">⚠️ Low stock!</span>' : '') + ' [' + m.cat + '] <span class="store-type ' + (m.storeType || 'homeo') + '">' + ((m.storeType === 'allo') ? 'Allopathic' : 'Homeopathic') + '</span>' + (m.storeName ? ' <span class="store-type" style="background:#fff8e1; color:#e65100; border:1px solid #e65100;">[Store: ' + m.storeName + ']</span>' : '') + (canManageMed(m) ? ' <button onclick="increaseStock(' + i + ')" style="width:auto; padding:5px 10px; background:#2e7d32;">+ Stock</button>' + ' <button onclick="delMed(' + i + ')" style="width:auto; padding:5px 10px; background:#d32f2f;">Delete</button>' : '') + (!isMedOwner(m) ? ' <button onclick="orderMed(' + i + ')" style="width:auto; padding:5px 10px; background:#1565c0;">Order</button>' : '') + '</div>';
+    return '<div' + (isLow ? ' class="low-stock"' : '') + ' style="border:1px solid #ddd; padding:10px; margin:5px 0; border-radius:4px;">' + (m.photo ? '<img src="' + m.photo + '" style="width:50px;height:50px;object-fit:cover;"> ' : '') + '<strong>' + m.name + '</strong>' + (m.company ? ' <span style="color:#6a1b9a;">(' + escH(m.company) + ')</span>' : '') + ' - Rs ' + m.price + ' (Stock: ' + m.stock + ')' + (isLow ? ' <span class="low-stock-badge">⚠️ Low stock!</span>' : '') + ' [' + m.cat + '] <span class="store-type ' + (m.storeType || 'homeo') + '">' + ((m.storeType === 'allo') ? 'Allopathic' : 'Homeopathic') + '</span>' + (m.storeName ? ' <span class="store-type" style="background:#fff8e1; color:#e65100; border:1px solid #e65100;">[Store: ' + m.storeName + ']</span>' : '') + (canManageMed(m) ? ' <button onclick="increaseStock(' + i + ')" style="width:auto; padding:5px 10px; background:#2e7d32;">+ Stock</button>' + ' <button onclick="delMed(' + i + ')" style="width:auto; padding:5px 10px; background:#d32f2f;">Delete</button>' : '') + (!isMedOwner(m) ? ' <button onclick="orderMed(' + i + ')" style="width:auto; padding:5px 10px; background:#1565c0;">Order</button>' : '') + '</div>';
   }).join('');
 }
-async function delMed(i) { if (!canManageMed(medicines[i])) { alert('Only the owner of this medicine can delete it.'); return; }
+async function delMed(i) {
+  if (!canManageMed(medicines[i])) { alert('Only the owner of this medicine can delete it.'); return; }
   try { if (medicines[i]._id) await fsDelete('medicines', medicines[i]._id); }
   catch (e) { alert('Delete failed: ' + e.message); return; }
   await renderMeds();
 }
-async function increaseStock(i) { if (!canManageMed(medicines[i])) { alert('Only the owner of this medicine can update its stock.'); return; }
+async function increaseStock(i) {
+  if (!canManageMed(medicines[i])) { alert('Only the owner of this medicine can update its stock.'); return; }
   const qty = prompt('Add how much stock?');
   if (qty === null || qty === '') return;
   const n = parseInt(qty, 10);
@@ -355,20 +349,21 @@ document.getElementById('addMedBtn').onclick = async () => {
   const storeType = document.getElementById('medStoreType').value;
   const storeId = document.getElementById('medStore').value;
   const storeObj = stores.find(s => String(s._id) === String(storeId));
-  if (!storeObj || !isStoreOwner(storeObj)) { alert('You can only add medicines to your own store.'); return; }   const storeName = storeObj.name;
+  if (!storeObj || !isStoreOwner(storeObj)) { alert('You can only add medicines to your own store.'); return; }
+  const storeName = storeObj.name;
+  const company = document.getElementById('medCompany').value.trim();
   if (!name || !price) { alert('Enter name and price'); return; }
   const photo = document.getElementById('medPhoto').value;
   try {
-    await fsAdd('medicines', { name: name, price: price, stock: stock === '' ? 0 : parseInt(stock, 10), cat: cat, photo: photo, storeType: storeType, storeId: storeId, storeName: storeName, ownerUid: (user && user.uid) || '', ownerEmail: (user && user.email) || '', createdAt: new Date().toISOString() });
+    await fsAdd('medicines', { name: name, price: price, stock: stock === '' ? 0 : parseInt(stock, 10), cat: cat, photo: photo, storeType: storeType, storeId: storeId, storeName: storeName, company: company, ownerUid: (user && user.uid) || '', ownerEmail: (user && user.email) || '', createdAt: new Date().toISOString() });
   } catch (e) { alert('Add medicine failed: ' + e.message); return; }
   document.getElementById('medName').value = '';
   document.getElementById('medPrice').value = '';
   document.getElementById('medStock').value = '';
   document.getElementById('medPhoto').value = '';
+  document.getElementById('medCompany').value = '';
   await renderMeds();
 };
-
-// Bulk add medicines (format: name - price - stock, one per line)
 document.getElementById('bulkAddBtn').onclick = async () => {
   const lines = document.getElementById('bulkText').value.split('\n');
   let added = 0;
@@ -379,49 +374,56 @@ document.getElementById('bulkAddBtn').onclick = async () => {
     const name = parts[0].trim();
     const price = parts[1].trim();
     const stock = parts.length > 2 ? parts[2].trim() : '';
+    const company = parts.length > 3 ? parts[3].trim() : '';
     if (!name || !price) continue;
     try {
-      await fsAdd('medicines', { name: name, price: price, stock: stock === '' ? 0 : parseInt(stock, 10), cat: 'Other', photo: '', storeType: 'homeo', ownerUid: (user && user.uid) || '', ownerEmail: (user && user.email) || '', createdAt: now });
+      await fsAdd('medicines', { name: name, price: price, stock: stock === '' ? 0 : parseInt(stock, 10), cat: 'Other', photo: '', storeType: 'homeo', company: company, ownerUid: (user && user.uid) || '', ownerEmail: (user && user.email) || '', createdAt: now });
       added++;
     } catch (e) { alert('Bulk add failed: ' + e.message); break; }
   }
-  if (added > 0) {
-    document.getElementById('bulkText').value = '';
-    await renderMeds();
-  }
+  if (added > 0) { document.getElementById('bulkText').value = ''; await renderMeds(); }
   alert(added + ' medicine(s) added');
 };
-
 let orders = [];
 async function orderMed(i) {
   const qty = prompt('Enter quantity to order (' + medicines[i].name + '):');
   if (qty === null || qty === '') return;
   const n = parseInt(qty, 10);
-  if (isNaN(n) || n <= 0) { alert('Enter a valid quantity'); return; } if (isMedOwner(medicines[i])) { alert('You own this medicine, so you cannot order it.'); return; } const availStock = parseInt(medicines[i].stock, 10) || 0; if (n > availStock) { alert('Only ' + availStock + ' in stock. Please reduce the quantity.'); return; }
+  if (isNaN(n) || n <= 0) { alert('Enter a valid quantity'); return; }
+  if (isMedOwner(medicines[i])) { alert('You own this medicine, so you cannot order it.'); return; }
+  const availStock = parseInt(medicines[i].stock, 10) || 0;
+  if (n > availStock) { alert('Only ' + availStock + ' in stock. Please reduce the quantity.'); return; }
   const otype = (user && user.type === 'customer') ? 'customer' : 'doctor';
   try {
     await fsAdd('orders', { med: medicines[i].name, medId: medicines[i]._id || '', qty: n, price: medicines[i].price, type: otype, by: user ? (user.name || user.email) : 'guest', buyerUid: (user && user.uid) || '', sellerUid: medicines[i].ownerUid || '', date: new Date().toLocaleString(), createdAt: new Date().toISOString() });
-  } catch (e) { alert('Order failed: ' + e.message); return; } try { if (medicines[i]._id) await fsUpdate('medicines', medicines[i]._id, { stock: availStock - n }); } catch (e2) { console.error(e2); } await renderMeds();
+  } catch (e) { alert('Order failed: ' + e.message); return; }
+  try { if (medicines[i]._id) await fsUpdate('medicines', medicines[i]._id, { stock: availStock - n }); }
+  catch (e2) { console.error(e2); }
+  await renderMeds();
   await renderOrders();
   alert('Order placed: ' + n + ' x ' + medicines[i].name);
 }
-function isMyOrder(o) { if (user && user.uid) { if (String(o.buyerUid || '') === String(user.uid)) return true; if (String(o.sellerUid || '') === String(user.uid)) return true; } const who = user ? (user.name || user.email) : ''; return !!(who && String(o.by || '') === String(who)); } async function renderOrders(refresh) {
-  if (refresh === undefined) refresh = true;
-  if (refresh) {
-    try { orders = await fsGet('orders'); orders.sort(byCreated); }
-    catch (e) { console.error(e); alert('Could not load orders: ' + e.message); }
+function isMyOrder(o) {
+  if (user && user.uid) {
+    if (String(o.buyerUid || '') === String(user.uid)) return true;
+    if (String(o.sellerUid || '') === String(user.uid)) return true;
   }
-  const visibleOrders = orders.filter(isMyOrder); const doc = visibleOrders.filter(o => o.type === 'doctor');
+  const who = user ? (user.name || user.email) : '';
+  return !!(who && String(o.by || '') === String(who));
+}
+async function renderOrders(refresh) {
+  if (refresh === undefined) refresh = true;
+  if (refresh) { try { orders = await fsGet('orders'); orders.sort(byCreated); } catch (e) { console.error(e); alert('Could not load orders: ' + e.message); } }
+  const visibleOrders = orders.filter(isMyOrder);
+  const doc = visibleOrders.filter(o => o.type === 'doctor');
   const cust = visibleOrders.filter(o => o.type === 'customer');
   const item = o => '<div style="border:1px solid #ddd; padding:8px; margin:5px 0; border-radius:4px;"><strong>' + o.qty + ' x ' + o.med + '</strong> - Rs ' + (o.price * o.qty) + ' <small>(' + o.by + ', ' + o.date + ')</small></div>';
   document.getElementById('docOrders').innerHTML = doc.length ? doc.map(item).join('') : '<p>No doctor orders.</p>';
   document.getElementById('custOrders').innerHTML = cust.length ? cust.map(item).join('') : '<p>No customer orders.</p>';
 }
-document.getElementById('storeSearch').addEventListener('input', () => renderMeds(false));
+document.getElementById('storeSearch').addEventListener('input', () => { renderMeds(false); renderStores(false); });
 document.getElementById('copyRef').onclick = () => { const link = document.getElementById('refLink').textContent; if (navigator.clipboard) { navigator.clipboard.writeText(link); } alert('Referral link copied!'); };
 document.getElementById('payMethod').onchange = (e) => { localStorage.setItem('medinest_pay', e.target.value); };
-
-// Store type filter pills
 document.getElementById('filterHomeo').onclick = () => { activeFilter = 'homeo'; renderMeds(false); updateFilterUI(); };
 document.getElementById('filterAllo').onclick = () => { activeFilter = 'allo'; renderMeds(false); updateFilterUI(); };
 document.getElementById('filterAll').onclick = () => { activeFilter = 'all'; renderMeds(false); updateFilterUI(); };
@@ -431,50 +433,159 @@ function updateFilterUI() {
   document.getElementById('filterAll').style.opacity = activeFilter === 'all' ? '1' : '0.5';
 }
 updateFilterUI();
-
-// Store creation (Firestore 'stores' collection)
 let stores = [];
 let viewingStore = null;
 let viewingStoreName = '';
-function filterByStore(i) {
-  const s = stores[i];
-  if (!s) return;
-  viewingStore = s._id || null;
-  viewingStoreName = s.name || '';
-  renderStores(false);
-  renderMeds(false);
+function filterByStore(i) { const s = stores[i]; if (!s) return; viewingStore = s._id || null; viewingStoreName = s.name || ''; renderStores(false); renderMeds(false); }
+function clearStoreFilter() { viewingStore = null; viewingStoreName = ''; renderStores(false); renderMeds(false); }
+let detailStoreIdx = -1;
+let storeReviewsCache = [];
+let storeReviewsLoaded = false;
+function escH(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+async function loadStoreReviewsCache(force){
+  if(storeReviewsLoaded && !force) return storeReviewsCache;
+  try{ storeReviewsCache = await fsGet('storeReviews'); storeReviewsCache.sort(byCreated); }
+  catch(e){ console.error(e); storeReviewsCache = []; }
+  storeReviewsLoaded = true;
+  return storeReviewsCache;
 }
-function clearStoreFilter() {
-  viewingStore = null;
-  viewingStoreName = '';
-  renderStores(false);
-  renderMeds(false);
+function storeAvgRating(storeId){
+  var list = storeReviewsCache.filter(function(r){ return String(r.storeId||'') === String(storeId||''); });
+  if(list.length === 0) return {avg:0, count:0};
+  var sum = 0;
+  for(var k=0; k<list.length; k++){ sum += (parseFloat(list[k].stars)||0); }
+  return {avg: sum/list.length, count: list.length};
 }
-let detailStoreIdx=-1; let storeReviewsCache=[]; let storeReviewsLoaded=false; function escH(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); } async function loadStoreReviewsCache(force){ if(storeReviewsLoaded&&!force) return storeReviewsCache; try{ storeReviewsCache=await fsGet('storeReviews'); storeReviewsCache.sort(byCreated); }catch(e){ console.error(e); storeReviewsCache=[]; } storeReviewsLoaded=true; return storeReviewsCache; } function storeAvgRating(storeId){ var list=storeReviewsCache.filter(function(r){ return String(r.storeId||'')===String(storeId||''); }); if(list.length===0) return {avg:0,count:0}; var sum=0; for(var k=0;k<list.length;k++){ sum+=(parseFloat(list[k].stars)||0); } return {avg:sum/list.length,count:list.length}; } function storeRatingBadge(storeId){ var r=storeAvgRating(storeId); if(!r.count) return ''; return ' <span class="store-type" style="background:#fff8e1; color:#e65100; border:1px solid #e65100;" title="'+r.count+' review(s)">★ '+r.avg.toFixed(1)+' ('+r.count+')</span>'; } async function openStore(i){ var s=stores[i]; if(!s) return; detailStoreIdx=i; if(medicines.length===0){ try{ medicines=await fsGet('medicines'); medicines.sort(byCreated); }catch(e){} } await loadStoreReviewsCache(); renderStoreDetail(); document.getElementById('storeListView').classList.add('hidden'); document.getElementById('storeDetailView').classList.remove('hidden'); window.scrollTo(0,0); } function backToStores(){ detailStoreIdx=-1; document.getElementById('storeDetailView').classList.add('hidden'); document.getElementById('storeListView').classList.remove('hidden'); } function renderStoreDetail(){ var s=stores[detailStoreIdx]; if(!s) return; var delBtn=document.getElementById('delStoreBtn'); if(delBtn){ if(isStoreOwner(s)){ delBtn.classList.remove('hidden'); } else { delBtn.classList.add('hidden'); } } document.getElementById('detailStoreName').textContent=s.name||''; document.getElementById('detailStoreDoctor').textContent='Doctor: '+(s.doctor||''); document.getElementById('detailStoreType').innerHTML='<span class="store-type '+(s.type||'homeo')+'">'+(s.type==='allo'?'Allopathic':'Homeopathic')+'</span>'; var medList=document.getElementById('detailMedList'); var idx=[]; for(var i=0;i<medicines.length;i++){ if(String(medicines[i].storeId||'')===String(s._id||'')) idx.push(i); } if(idx.length===0){ medList.innerHTML='<p>No medicines in this store yet.</p>'; } else { medList.innerHTML=idx.map(function(i){ var m=medicines[i]; return '<div style="border:1px solid #ddd; padding:10px; margin:5px 0; border-radius:4px;"><strong>'+escH(m.name)+'</strong> - Rs '+escH(m.price)+' (Stock: '+escH(m.stock)+')'+((isMedOwner(m)&&parseInt(m.stock,10)<10)?' <span class="low-stock-badge">⚠️ Low stock!</span>':'')+(!isMedOwner(m)?' <button onclick="orderMed('+i+')" style="width:auto; padding:5px 10px; background:#1565c0;">Order</button>':'')+'</div>'; }).join(''); } renderStoreReviews(s._id); } function renderStoreReviews(storeId){ var r=storeAvgRating(storeId); var avgEl=document.getElementById('detailAvgRating'); if(avgEl){ avgEl.textContent=r.count?('★ '+r.avg.toFixed(1)+' ('+r.count+' review'+(r.count>1?'s':'')+')'):''; } var listEl=document.getElementById('detailReviewList'); var list=storeReviewsCache.filter(function(x){ return String(x.storeId||'')===String(storeId||''); }); if(list.length===0){ listEl.innerHTML='<p>No reviews yet.</p>'; return; } listEl.innerHTML=list.map(function(x){ var stars=parseInt(x.stars,10)||0; var sHtml=''; for(var k=0;k<5;k++){ sHtml+=(k<stars?'★':'☆'); } return '<div style="border:1px solid #ddd; padding:8px; margin:5px 0; border-radius:4px;"><strong>'+escH(x.by||'Customer')+'</strong> <span style="color:#e65100;">'+sHtml+'</span><br>'+escH(x.text||'')+'</div>'; }).join(''); } document.getElementById('backToStoresBtn').onclick=function(){ backToStores(); }; document.getElementById('delStoreBtn').onclick=function(){ delStore(); }; async function delStore(){ var s=stores[detailStoreIdx]; if(!s||!isStoreOwner(s)){ alert('Only the store owner can delete this store.'); return; } if(!confirm('Delete "'+(s.name||'this store')+'" and ALL its medicines? This cannot be undone.')) return; try{ var doomed=medicines.filter(function(m){ return String(m.storeId||'')===String(s._id||''); }); for(var k=0;k<doomed.length;k++){ if(doomed[k]._id) await fsDelete('medicines', doomed[k]._id); } if(s._id) await fsDelete('stores', s._id); }catch(e){ alert('Delete failed: '+e.message); return; } backToStores(); await renderStores(); await renderMeds(); } document.getElementById('detailAddRevBtn').onclick=async function(){ var s=stores[detailStoreIdx]; if(!s){ alert('No store selected'); return; } var stars=parseInt(document.getElementById('detailRevStars').value,10)||5; var text=document.getElementById('detailRevText').value.trim(); if(!text){ alert('Please write a review'); return; } try{ await fsAdd('storeReviews',{storeId:String(s._id||''),storeName:(s.name||''),stars:stars,text:text,by:((typeof user!=='undefined'&&user&&(user.name||user.email))||'Customer'),createdAt:new Date().toISOString()}); }catch(e){ alert('Could not submit review: '+e.message); return; } document.getElementById('detailRevText').value=''; await loadStoreReviewsCache(true); renderStoreReviews(s._id); renderStores(false); }; async function renderStores(refresh){ await loadStoreReviewsCache();
-  if (refresh === undefined) refresh = true;
-  if (refresh) {
-    try { stores = await fsGet('stores'); stores.sort(byCreated); }
-    catch (e) { console.error(e); alert('Could not load stores: ' + e.message); }
+function storeRatingBadge(storeId){
+  var r = storeAvgRating(storeId);
+  if(!r.count) return '';
+  return ' <span class="store-type" style="background:#fff8e1; color:#e65100; border:1px solid #e65100;" title="'+r.count+' review(s)">★ '+r.avg.toFixed(1)+' ('+r.count+')</span>';
+}
+async function openStore(i){
+  var s = stores[i];
+  if(!s) return;
+  detailStoreIdx = i;
+  if(medicines.length === 0){ try{ medicines = await fsGet('medicines'); medicines.sort(byCreated); }catch(e){} }
+  await loadStoreReviewsCache();
+  renderStoreDetail();
+  document.getElementById('storeListView').classList.add('hidden');
+  document.getElementById('storeDetailView').classList.remove('hidden');
+  window.scrollTo(0,0);
+}
+function backToStores(){
+  detailStoreIdx = -1;
+  document.getElementById('storeDetailView').classList.add('hidden');
+  document.getElementById('storeListView').classList.remove('hidden');
+}
+function renderStoreDetail(){
+  var s = stores[detailStoreIdx];
+  if(!s) return;
+  var delBtn = document.getElementById('delStoreBtn');
+  if(delBtn){ if(isStoreOwner(s)){ delBtn.classList.remove('hidden'); } else { delBtn.classList.add('hidden'); } }
+  document.getElementById('detailStoreName').textContent = s.name || '';
+  document.getElementById('detailStoreDoctor').textContent = 'Doctor: ' + (s.doctor || '');
+  document.getElementById('detailStoreType').innerHTML = '<span class="store-type ' + (s.type || 'homeo') + '">' + (s.type === 'allo' ? 'Allopathic' : 'Homeopathic') + '</span>';
+  var medList = document.getElementById('detailMedList');
+  var idx = [];
+  for(var i=0; i<medicines.length; i++){ if(String(medicines[i].storeId||'') === String(s._id||'')) idx.push(i); }
+  if(idx.length === 0){ medList.innerHTML = '<p>No medicines in this store yet.</p>'; }
+  else {
+    medList.innerHTML = idx.map(function(i){
+      var m = medicines[i];
+      return '<div style="border:1px solid #ddd; padding:10px; margin:5px 0; border-radius:4px;"><strong>' + escH(m.name) + '</strong>' + (m.company ? ' (' + escH(m.company) + ')' : '') + ' - Rs ' + escH(m.price) + ' (Stock: ' + escH(m.stock) + ')' + ((isMedOwner(m) && parseInt(m.stock,10) < 10) ? ' <span class="low-stock-badge">⚠️ Low stock!</span>' : '') + (!isMedOwner(m) ? ' <button onclick="orderMed(' + i + ')" style="width:auto; padding:5px 10px; background:#1565c0;">Order</button>' : '') + '</div>';
+    }).join('');
   }
+  renderStoreReviews(s._id);
+}
+function renderStoreReviews(storeId){
+  var r = storeAvgRating(storeId);
+  var avgEl = document.getElementById('detailAvgRating');
+  if(avgEl){ avgEl.textContent = r.count ? ('★ ' + r.avg.toFixed(1) + ' (' + r.count + ' review' + (r.count>1 ? 's' : '') + ')') : ''; }
+  var listEl = document.getElementById('detailReviewList');
+  var list = storeReviewsCache.filter(function(x){ return String(x.storeId||'') === String(storeId||''); });
+  if(list.length === 0){ listEl.innerHTML = '<p>No reviews yet.</p>'; return; }
+  listEl.innerHTML = list.map(function(x){
+    var stars = parseInt(x.stars,10) || 0;
+    var sHtml = '';
+    for(var k=0; k<5; k++){ sHtml += (k<stars ? '★' : '☆'); }
+    return '<div style="border:1px solid #ddd; padding:8px; margin:5px 0; border-radius:4px;"><strong>' + escH(x.by || 'Customer') + '</strong> <span style="color:#e65100;">' + sHtml + '</span><br>' + escH(x.text || '') + '</div>';
+  }).join('');
+}
+document.getElementById('backToStoresBtn').onclick = function(){ backToStores(); };
+document.getElementById('delStoreBtn').onclick = function(){ delStore(); };
+async function delStore(){
+  var s = stores[detailStoreIdx];
+  if(!s || !isStoreOwner(s)){ alert('Only the store owner can delete this store.'); return; }
+  if(!confirm('Delete "' + (s.name || 'this store') + '" and ALL its medicines? This cannot be undone.')) return;
+  try{
+    var doomed = medicines.filter(function(m){ return String(m.storeId||'') === String(s._id||''); });
+    for(var k=0; k<doomed.length; k++){ if(doomed[k]._id) await fsDelete('medicines', doomed[k]._id); }
+    if(s._id) await fsDelete('stores', s._id);
+  }catch(e){ alert('Delete failed: ' + e.message); return; }
+  backToStores();
+  await renderStores();
+  await renderMeds();
+}
+document.getElementById('detailAddRevBtn').onclick = async function(){
+  var s = stores[detailStoreIdx];
+  if(!s){ alert('No store selected'); return; }
+  var stars = parseInt(document.getElementById('detailRevStars').value, 10) || 5;
+  var text = document.getElementById('detailRevText').value.trim();
+  if(!text){ alert('Please write a review'); return; }
+  try{
+    await fsAdd('storeReviews', {storeId: String(s._id||''), storeName: (s.name||''), stars: stars, text: text, by: ((typeof user !== 'undefined' && user && (user.name || user.email)) || 'Customer'), createdAt: new Date().toISOString()});
+  }catch(e){ alert('Could not submit review: ' + e.message); return; }
+  document.getElementById('detailRevText').value = '';
+  await loadStoreReviewsCache(true);
+  renderStoreReviews(s._id);
+  renderStores(false);
+};
+async function renderStoresLegacy(refresh){
+  await loadStoreReviewsCache();
+  if (refresh === undefined) refresh = true;
+  if (refresh) { try { stores = await fsGet('stores'); stores.sort(byCreated); } catch (e) { console.error(e); alert('Could not load stores: ' + e.message); } }
+}
+async function renderStores(refresh){
+  await loadStoreReviewsCache();
+  if(refresh === undefined) refresh = true;
+  if(refresh){ try{ stores = await fsGet('stores'); stores.sort(byCreated); }catch(e){ console.error(e); alert('Could not load stores: ' + e.message); } }
+  const sq = (document.getElementById('storeSearch').value || '').toLowerCase();
   const list = document.getElementById('storeList');
-  if (list) {
-    if (stores.length === 0) { list.innerHTML = '<p>No stores yet.</p>'; }
+  if(list){
+    const shown = stores.filter(function(s){ if(!sq) return true; return ((s.name || '') + ' ' + (s.doctor || '')).toLowerCase().indexOf(sq) !== -1; });
+    if(stores.length === 0){ list.innerHTML = '<p>No stores yet.</p>'; }
+    else if(shown.length === 0){ list.innerHTML = '<p>No stores found.</p>'; }
     else {
-      list.innerHTML = stores.map((s, i) => '<div onclick="filterByStore(' + i + ')" style="border:1px solid #ddd; padding:10px; margin:5px 0; border-radius:4px; cursor:pointer;" title="Click to view medicines from this store"><strong>' + s.name + '</strong><br>Doctor: ' + s.doctor + ' <span class="store-type ' + s.type + '">' + (s.type === 'allo' ? 'Allopathic' : 'Homeopathic') + '</span>' + (viewingStore && String(viewingStore) === String(s._id) ? ' <span class="store-type" style="background:#e8f5e9; color:#2e7d32; border:1px solid #2e7d32;">✓ Selected</span>' : '') + '</div>').join('');
+      list.innerHTML = shown.map(function(s){
+        const i = stores.indexOf(s);
+        return '<div onclick="openStore(' + i + ')" style="border:1px solid #ddd; padding:10px; margin:5px 0; border-radius:4px; cursor:pointer;" title="Click to view store details"><strong>' + s.name + '</strong><br>Doctor: ' + s.doctor + ' <span class="store-type ' + s.type + '">' + (s.type === 'allo' ? 'Allopathic' : 'Homeopathic') + '</span>' + storeRatingBadge(s._id) + (viewingStore && String(viewingStore) === String(s._id) ? ' <span class="store-type" style="background:#e8f5e9; color:#2e7d32; border:1px solid #2e7d32;">✓ Selected</span>' : '') + '</div>';
+      }).join('');
     }
   }
   const sel = document.getElementById('medStore');
-  if (sel) {
+  if(sel){
     const cur = sel.value;
-    sel.innerHTML = '<option value="">Select Store</option>' + stores.map(s => '<option value="' + s._id + '">' + s.name + '</option>').join('');
-    if (cur && stores.some(s => String(s._id) === String(cur))) sel.value = cur;
+    var myStores = stores.filter(isStoreOwner);
+    if(myStores.length === 0){
+      sel.innerHTML = '<option value="">Create a store first (one doctor = one store)</option>';
+      sel.disabled = true;
+      var addBtn0 = document.getElementById('addMedBtn');
+      if(addBtn0) addBtn0.disabled = true;
+    } else {
+      sel.disabled = false;
+      var addBtn1 = document.getElementById('addMedBtn');
+      if(addBtn1) addBtn1.disabled = false;
+      sel.innerHTML = '<option value="">Select Store</option>' + myStores.map(s => '<option value="' + s._id + '">' + escH(s.name) + '</option>').join('');
+    }
+    if(cur && myStores.some(s => String(s._id) === String(cur))) sel.value = cur;
   }
 }
-async function renderStores(refresh){ await loadStoreReviewsCache(); if(refresh===undefined)refresh=true; if(refresh){ try{stores=await fsGet('stores');stores.sort(byCreated);}catch(e){console.error(e);alert('Could not load stores: '+e.message);} } const list=document.getElementById('storeList'); if(list){ if(stores.length===0){list.innerHTML='<p>No stores yet.</p>';} else{ list.innerHTML=stores.map((s,i)=>'<div onclick="openStore('+i+')" style="border:1px solid #ddd; padding:10px; margin:5px 0; border-radius:4px; cursor:pointer;" title="Click to view store details"><strong>'+s.name+'</strong><br>Doctor: '+s.doctor+' <span class="store-type '+s.type+'">'+(s.type==='allo'?'Allopathic':'Homeopathic')+'</span>'+storeRatingBadge(s._id)+(viewingStore&&String(viewingStore)===String(s._id)?' <span class="store-type" style="background:#e8f5e9; color:#2e7d32; border:1px solid #2e7d32;">✓ Selected</span>':'')+'</div>').join(''); } } const sel=document.getElementById('medStore'); if(sel){ const cur=sel.value; var myStores=stores.filter(isStoreOwner); if(myStores.length===0){ sel.innerHTML='<option value="">Create a store first (one doctor = one store)</option>'; sel.disabled=true; var addBtn0=document.getElementById('addMedBtn'); if(addBtn0)addBtn0.disabled=true; } else { sel.disabled=false; var addBtn1=document.getElementById('addMedBtn'); if(addBtn1)addBtn1.disabled=false; sel.innerHTML='<option value="">Select Store</option>'+myStores.map(s=>'<option value="'+s._id+'">'+escH(s.name)+'</option>').join(''); } if(cur&&myStores.some(s=>String(s._id)===String(cur)))sel.value=cur; } } document.getElementById('createStoreBtn').onclick = async () => {
+document.getElementById('createStoreBtn').onclick = async () => {
   const name = document.getElementById('storeName').value.trim();
   const doctor = document.getElementById('doctorName').value.trim();
   const type = document.getElementById('storeTypeSel').value;
-  if (!name || !doctor) { alert('Store name and doctor name are mandatory'); return; } if (stores.some(isStoreOwner)) { alert('You already have a store! One doctor can only have one store.'); return; }
+  if (!name || !doctor) { alert('Store name and doctor name are mandatory'); return; }
+  if (stores.some(isStoreOwner)) { alert('You already have a store! One doctor can only have one store.'); return; }
   try {
     await fsAdd('stores', { name: name, doctor: doctor, type: type, ownerUid: (user && user.uid) || '', ownerEmail: (user && user.email) || '', createdAt: new Date().toISOString() });
   } catch (e) { alert('Create store failed: ' + e.message); return; }
@@ -482,12 +593,44 @@ async function renderStores(refresh){ await loadStoreReviewsCache(); if(refresh=
   document.getElementById('doctorName').value = '';
   await renderStores();
 };
-
 renderMeds();
 renderStores();
-document.getElementById('calcDelBtn').onclick = () => { const qty = parseFloat(document.getElementById('delQty').value) || 0; const weight = parseFloat(document.getElementById('delWeight').value) || 0; const dist = parseFloat(document.getElementById('delDist').value) || 0; let fee = (qty * 10) + (weight * 50) + (dist * 20); let note = ''; if (qty > 10) { fee = fee * 0.9; note = ' (10% discount applied)'; } document.getElementById('delResult').innerHTML = 'Delivery Fee: <strong>Rs ' + fee.toFixed(2) + '</strong>' + note; }; let ledger = []; // LIVE: Firestore 'ledger' collection async function renderLedger(refresh) { if (refresh === undefined) refresh = true; if (refresh) { try { ledger = await fsGet('ledger'); ledger.sort(byCreated); } catch (e) { console.error(e); alert('Could not load ledger: ' + e.message); } } const list = document.getElementById('ledgerList'); if (!list) return; if (ledger.length === 0) { list.innerHTML = '<p>No transactions yet.</p>'; return; } const pending = ledger.filter(t => t.type === 'pending').reduce((s, t) => s + (parseFloat(t.amt) || 0), 0); const received = ledger.filter(t => t.type === 'received').reduce((s, t) => s + (parseFloat(t.amt) || 0), 0); list.innerHTML = ledger.map(t => '<div style="border:1px solid #ddd; padding:10px; margin:5px 0; border-radius:4px;"><strong>' + t.desc + '</strong> - Rs ' + t.amt + ' <span class="store-type ' + (t.type === 'pending' ? 'allo' : 'homeo') + '">' + t.type + '</span> <small>(' + t.date + ')</small></div>').join('') + '<p style="margin-top:10px;"><strong>Total Received: Rs ' + received.toFixed(2) + '</strong> | <strong>Total Pending: Rs ' + pending.toFixed(2) + '</strong></p>'; } document.getElementById('addLedBtn').onclick = async () => { const desc = document.getElementById('ledDesc').value.trim(); const amt = document.getElementById('ledAmt').value; const type = document.getElementById('ledType').value; if (!desc || !amt) { alert('Enter description and amount'); return; } try { await fsAdd('ledger', {desc: desc, amt: parseFloat(amt), type: type, date: new Date().toLocaleString(), createdAt: new Date().toISOString()}); } catch (e) { alert('Add transaction failed: ' + e.message); return; } document.getElementById('ledDesc').value = ''; document.getElementById('ledAmt').value = ''; await renderLedger(); }; renderLedger(); // Restore session
+document.getElementById('calcDelBtn').onclick = () => { const qty = parseFloat(document.getElementById('delQty').value) || 0; const weight = parseFloat(document.getElementById('delWeight').value) || 0; const dist = parseFloat(document.getElementById('delDist').value) || 0; let fee = (qty * 10) + (weight * 50) + (dist * 20); let note = ''; if (qty > 10) { fee = fee * 0.9; note = ' (10% discount applied)'; } document.getElementById('delResult').innerHTML = 'Delivery Fee: <strong>Rs ' + fee.toFixed(2) + '</strong>' + note; };
+let ledger = [];
+async function renderLedger(refresh) {
+  if (refresh === undefined) refresh = true;
+  if (refresh) { try { ledger = await fsGet('ledger'); ledger.sort(byCreated); } catch (e) { console.error(e); alert('Could not load ledger: ' + e.message); } }
+  const list = document.getElementById('ledgerList');
+  if (!list) return;
+  if (ledger.length === 0) { list.innerHTML = '<p>No transactions yet.</p>'; return; }
+  const pending = ledger.filter(t => t.type === 'pending').reduce((s, t) => s + (parseFloat(t.amt) || 0), 0);
+  const received = ledger.filter(t => t.type === 'received').reduce((s, t) => s + (parseFloat(t.amt) || 0), 0);
+  list.innerHTML = ledger.map(t => '<div style="border:1px solid #ddd; padding:10px; margin:5px 0; border-radius:4px;"><strong>' + t.desc + '</strong> - Rs ' + t.amt + ' <span class="store-type ' + (t.type === 'pending' ? 'allo' : 'homeo') + '">' + t.type + '</span> <small>(' + t.date + ')</small></div>').join('') + '<p style="margin-top:10px;"><strong>Total Received: Rs ' + received.toFixed(2) + '</strong> | <strong>Total Pending: Rs ' + pending.toFixed(2) + '</strong></p>';
+}
+document.getElementById('addLedBtn').onclick = async () => {
+  const desc = document.getElementById('ledDesc').value.trim();
+  const amt = document.getElementById('ledAmt').value;
+  const type = document.getElementById('ledType').value;
+  if (!desc || !amt) { alert('Enter description and amount'); return; }
+  try { await fsAdd('ledger', {desc: desc, amt: parseFloat(amt), type: type, date: new Date().toLocaleString(), createdAt: new Date().toISOString()}); }
+  catch (e) { alert('Add transaction failed: ' + e.message); return; }
+  document.getElementById('ledDesc').value = '';
+  document.getElementById('ledAmt').value = '';
+  await renderLedger();
+};
+renderLedger();
 const saved = localStorage.getItem('medinest_user');
-if (saved) { user = JSON.parse(saved); showDashboard(); } document.getElementById('scanPhotoBtn').onclick = async () => { const file = document.getElementById('bulkPhoto').files[0]; if (!file) { alert('Please select a photo first'); return; } document.getElementById('scanStatus').textContent = 'Scanning... please wait'; try { const result = await Tesseract.recognize(file, 'eng'); document.getElementById('bulkText').value = result.data.text; document.getElementById('scanStatus').textContent = 'Scan complete! Review and click Add All.'; } catch(e) { document.getElementById('scanStatus').textContent = 'Scan failed: ' + e.message; } };
+if (saved) { user = JSON.parse(saved); showDashboard(); }
+document.getElementById('scanPhotoBtn').onclick = async () => {
+  const file = document.getElementById('bulkPhoto').files[0];
+  if (!file) { alert('Please select a photo first'); return; }
+  document.getElementById('scanStatus').textContent = 'Scanning... please wait';
+  try {
+    const result = await Tesseract.recognize(file, 'eng');
+    document.getElementById('bulkText').value = result.data.text;
+    document.getElementById('scanStatus').textContent = 'Scan complete! Review and click Add All.';
+  } catch(e) { document.getElementById('scanStatus').textContent = 'Scan failed: ' + e.message; }
+};
 </script>
 <script src="reviews.js"></script>
 </body>
